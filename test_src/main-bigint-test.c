@@ -32,15 +32,18 @@
 
 char *algo_name = "BigInt";
 
+#define MAX(a,b) ((a) > (b) ? (a) : (b))
+#define MIN(a,b) ((a) < (b) ? (a) : (b))
+
 /*****************************************************************************
  *  additional validation-functions											 *
  *****************************************************************************/
-void test_echo_bigint(void){
+void test_echo_bigint(void) {
 	bigint_t a;
 	cli_putstr_P(PSTR("\r\necho test\r\n"));
-	for(;;){
+	for (;;) {
 		cli_putstr_P(PSTR("\r\nenter hex number:"));
-		if(bigint_read_hex_echo(&a)){
+		if (bigint_read_hex_echo(&a)) {
 			cli_putstr_P(PSTR("\r\n end echo test"));
 			return;
 		}
@@ -54,14 +57,14 @@ void test_echo_bigint(void){
 void test_add_bigint(void){
 	bigint_t a, b, c;
 	cli_putstr_P(PSTR("\r\nadd test\r\n"));
-	for(;;){
+	for (;;) {
 		cli_putstr_P(PSTR("\r\nenter a:"));
-		if(bigint_read_hex_echo(&a)){
+		if (bigint_read_hex_echo(&a)) {
 			cli_putstr_P(PSTR("\r\n end add test"));
 			return;
 		}
 		cli_putstr_P(PSTR("\r\nenter b:"));
-		if(bigint_read_hex_echo(&b)){
+		if (bigint_read_hex_echo(&b)) {
 			free(a.wordv);
 			cli_putstr_P(PSTR("\r\n end add test"));
 			return;
@@ -71,9 +74,9 @@ void test_add_bigint(void){
 		cli_putstr_P(PSTR(" + "));
 		bigint_print_hex(&b);
 		cli_putstr_P(PSTR(" = "));
-		uint8_t *c_b;
-		c_b = malloc(((a.length_W>b.length_W)?a.length_W:b.length_W)+2);
-		if(c_b==NULL){
+		bigint_word_t *c_b;
+		c_b = malloc((MAX(a.length_W, b.length_W) + 2) * sizeof(bigint_word_t));
+		if(c_b == NULL){
 			cli_putstr_P(PSTR("\n\rERROR: Out of memory!"));
 			free(a.wordv);
 			free(b.wordv);
@@ -93,14 +96,14 @@ void test_add_scale_bigint(void){
 	bigint_t a, b, c;
 	uint16_t scale;
 	cli_putstr_P(PSTR("\r\nadd-scale test\r\n"));
-	for(;;){
+	for (;;) {
 		cli_putstr_P(PSTR("\r\nenter a:"));
-		if(bigint_read_hex_echo(&a)){
+		if (bigint_read_hex_echo(&a)) {
 			cli_putstr_P(PSTR("\r\n end add-scale test"));
 			return;
 		}
 		cli_putstr_P(PSTR("\r\nenter b:"));
-		if(bigint_read_hex_echo(&b)){
+		if (bigint_read_hex_echo(&b)) {
 			cli_putstr_P(PSTR("\r\n end add-scale test"));
 			return;
 		}
@@ -117,8 +120,8 @@ void test_add_scale_bigint(void){
 			return;
 		}
 	*/
-		uint8_t *c_b;
-		c_b = malloc(((a.length_W>(b.length_W+scale))?a.length_W:(b.length_W+scale))+2);
+		bigint_word_t *c_b;
+		c_b = malloc((MAX(a.length_W, b.length_W+scale) + 2) * sizeof(bigint_word_t));
 		if(c_b==NULL){
 			cli_putstr_P(PSTR("\n\rERROR: Out of memory!"));
 			free(a.wordv);
@@ -146,14 +149,14 @@ void test_add_scale_bigint(void){
 void test_mul_bigint(void){
 	bigint_t a, b, c;
 	cli_putstr_P(PSTR("\r\nmul test\r\n"));
-	for(;;){
+	for (;;) {
 		cli_putstr_P(PSTR("\r\nenter a:"));
-		if(bigint_read_hex_echo(&a)){
+		if (bigint_read_hex_echo(&a)) {
 			cli_putstr_P(PSTR("\r\n end mul test"));
 			return;
 		}
 		cli_putstr_P(PSTR("\r\nenter b:"));
-		if(bigint_read_hex_echo(&b)){
+		if (bigint_read_hex_echo(&b)) {
 			free(a.wordv);
 			cli_putstr_P(PSTR("\r\n end mul test"));
 			return;
@@ -163,9 +166,9 @@ void test_mul_bigint(void){
 		cli_putstr_P(PSTR(" * "));
 		bigint_print_hex(&b);
 		cli_putstr_P(PSTR(" = "));
-		uint8_t *c_b;
-		c_b = malloc((((a.length_W>b.length_W)?a.length_W:b.length_W)+1)*2);
-		if(c_b==NULL){
+		bigint_word_t *c_b;
+		c_b = malloc((MAX(a.length_W, b.length_W) + 1) * 2 * sizeof(bigint_word_t));
+		if (c_b==NULL) {
 			cli_putstr_P(PSTR("\n\rERROR: Out of memory!"));
 			free(a.wordv);
 			free(b.wordv);
@@ -185,20 +188,20 @@ void test_mul_mont_bigint(void){
     bigint_t a, b, c, a_, b_, m_, res;
     bigint_length_t s;
     cli_putstr_P(PSTR("\r\nmul-mont test ( (a * b) % c )\r\n"));
-    for(;;){
+    for (;;) {
         cli_putstr_P(PSTR("\r\nenter a:"));
-        if(bigint_read_hex_echo(&a)){
+        if (bigint_read_hex_echo(&a)) {
             cli_putstr_P(PSTR("\r\n end mul test"));
             return;
         }
         cli_putstr_P(PSTR("\r\nenter b:"));
-        if(bigint_read_hex_echo(&b)){
+        if (bigint_read_hex_echo(&b)) {
             free(a.wordv);
             cli_putstr_P(PSTR("\r\n end mul test"));
             return;
         }
         cli_putstr_P(PSTR("\r\nenter c:"));
-        if(bigint_read_hex_echo(&c)){
+        if (bigint_read_hex_echo(&c)) {
             free(a.wordv);
             free(b.wordv);
             cli_putstr_P(PSTR("\r\n end mul test"));
@@ -234,14 +237,14 @@ void test_mul_word_bigint(void){
     bigint_t a, b;
     bigint_word_t *t;
     cli_putstr_P(PSTR("\r\nmul test\r\n"));
-    for(;;){
+    for (;;) {
         cli_putstr_P(PSTR("\r\nenter a:"));
-        if(bigint_read_hex_echo(&a)){
+        if (bigint_read_hex_echo(&a)) {
             cli_putstr_P(PSTR("\r\n end mul test"));
             return;
         }
         cli_putstr_P(PSTR("\r\nenter b:"));
-        if(bigint_read_hex_echo(&b)){
+        if (bigint_read_hex_echo(&b)) {
             free(a.wordv);
             cli_putstr_P(PSTR("\r\n end mul test"));
             return;
@@ -252,14 +255,14 @@ void test_mul_word_bigint(void){
         bigint_print_hex(&b);
         cli_putstr_P(PSTR(" = "));
 
-        if(b.length_W > 1){
+        if (b.length_W > 1) {
             free(a.wordv);
             free(b.wordv);
             cli_putstr_P(PSTR("\r\n end mul test"));
         }
 
-        t = realloc(a.wordv, a.length_W + 3);
-        if(t == NULL){
+        t = realloc(a.wordv, (a.length_W + 3) * sizeof(bigint_word_t));
+        if (t == NULL) {
             cli_putstr_P(PSTR("\n\rERROR: Out of memory!"));
             free(a.wordv);
             free(b.wordv);
@@ -286,9 +289,9 @@ void test_square_bigint(void){
 		cli_putstr_P(PSTR("\r\n "));
 		bigint_print_hex(&a);
 		cli_putstr_P(PSTR("**2 = "));
-		uint8_t *c_b;
-		c_b = malloc(a.length_W*2);
-		if(c_b==NULL){
+		bigint_word_t *c_b;
+		c_b = malloc(a.length_W * 2 * sizeof(bigint_word_t));
+		if(c_b == NULL){
 			cli_putstr_P(PSTR("\n\rERROR: Out of memory!"));
 			free(a.wordv);
 			continue;
@@ -305,14 +308,14 @@ void test_square_bigint(void){
 void test_reduce_bigint(void){
 	bigint_t a, b;
 	cli_putstr_P(PSTR("\r\nreduce test\r\n"));
-	for(;;){
+	for (;;) {
 		cli_putstr_P(PSTR("\r\nenter a:"));
-		if(bigint_read_hex_echo(&a)){
+		if (bigint_read_hex_echo(&a)) {
 			cli_putstr_P(PSTR("\r\n end reduce test"));
 			return;
 		}
 		cli_putstr_P(PSTR("\r\nenter b:"));
-		if(bigint_read_hex_echo(&b)){
+		if (bigint_read_hex_echo(&b)) {
 			free(a.wordv);
 			cli_putstr_P(PSTR("\r\n end reduce test"));
 			return;
@@ -332,28 +335,28 @@ void test_reduce_bigint(void){
 /* d = a**b % c */
 void test_expmod_bigint(void){
 	bigint_t a, b, c, d;
-	uint8_t *d_b;
+	bigint_word_t *d_b;
 	cli_putstr_P(PSTR("\r\nexpnonentiation-modulo test\r\n"));
-	for(;;){
+	for (;;) {
 		cli_putstr_P(PSTR("\r\nenter a:"));
-		if(bigint_read_hex_echo(&a)){
+		if (bigint_read_hex_echo(&a)) {
 			cli_putstr_P(PSTR("\r\n end expmod test"));
 			return;
 		}
 		cli_putstr_P(PSTR("\r\nenter b:"));
-		if(bigint_read_hex_echo(&b)){
+		if (bigint_read_hex_echo(&b)) {
 			free(a.wordv);
 			cli_putstr_P(PSTR("\r\n end expmod test"));
 			return;
 		}
 		cli_putstr_P(PSTR("\r\nenter c:"));
-		if(bigint_read_hex_echo(&c)){
+		if (bigint_read_hex_echo(&c)) {
 			free(a.wordv);
 			free(b.wordv);
 			cli_putstr_P(PSTR("\r\n end expmod test"));
 			return;
 		}
-		d_b = malloc(c.length_W);
+		d_b = malloc(c.length_W * sizeof(bigint_word_t));
 		if(d_b==NULL){
 			cli_putstr_P(PSTR("\n\rERROR: Out of memory!"));
 			free(a.wordv);
@@ -369,7 +372,7 @@ void test_expmod_bigint(void){
 		cli_putstr_P(PSTR(" % "));
 		bigint_print_hex(&c);
 		cli_putstr_P(PSTR(" = "));
-		bigint_expmod_u(&d, &a, &b, &c);
+		bigint_expmod_u_sam(&d, &a, &b, &c);
 		bigint_print_hex(&d);
 		cli_putstr_P(PSTR("\r\n"));
 		free(a.wordv);
@@ -383,29 +386,29 @@ void test_expmod_bigint(void){
 /* d = a**b % c */
 void test_expmod_mont_bigint(void){
     bigint_t a, b, c, d;
-    uint8_t *d_b;
+    bigint_word_t *d_b;
     cli_putstr_P(PSTR("\r\nexpnonentiation-modulo-montgomory test\r\n"));
-    for(;;){
+    for (;;) {
         cli_putstr_P(PSTR("\r\nenter a:"));
-        if(bigint_read_hex_echo(&a)){
+        if (bigint_read_hex_echo(&a)) {
             cli_putstr_P(PSTR("\r\n end expmod test"));
             return;
         }
         cli_putstr_P(PSTR("\r\nenter b:"));
-        if(bigint_read_hex_echo(&b)){
+        if (bigint_read_hex_echo(&b)) {
             free(a.wordv);
             cli_putstr_P(PSTR("\r\n end expmod test"));
             return;
         }
         cli_putstr_P(PSTR("\r\nenter c:"));
-        if(bigint_read_hex_echo(&c)){
+        if (bigint_read_hex_echo(&c)) {
             free(a.wordv);
             free(b.wordv);
             cli_putstr_P(PSTR("\r\n end expmod test"));
             return;
         }
-        d_b = malloc(c.length_W);
-        if(d_b==NULL){
+        d_b = malloc(c.length_W * sizeof(bigint_word_t));
+        if (d_b == NULL) {
             cli_putstr_P(PSTR("\n\rERROR: Out of memory!"));
             free(a.wordv);
             free(b.wordv);
@@ -434,21 +437,21 @@ void test_expmod_mont_bigint(void){
 void test_gcdext_bigint(void){
 	bigint_t a, b, c, d, e;
 	cli_putstr_P(PSTR("\r\ngcdext test\r\n"));
-	for(;;){
+	for (;;) {
 		cli_putstr_P(PSTR("\r\nenter a:"));
-		if(bigint_read_hex_echo(&a)){
+		if (bigint_read_hex_echo(&a)) {
 			cli_putstr_P(PSTR("\r\n end gcdext test"));
 			return;
 		}
 		cli_putstr_P(PSTR("\r\nenter b:"));
-		if(bigint_read_hex_echo(&b)){
+		if (bigint_read_hex_echo(&b)) {
 			free(a.wordv);
 			cli_putstr_P(PSTR("\r\n end gcdext test"));
 			return;
 		}
-		c.wordv = malloc((a.length_W<b.length_W)?a.length_W:b.length_W);
-		d.wordv = malloc(1+(a.length_W>b.length_W)?a.length_W:b.length_W);
-		e.wordv = malloc(1+(a.length_W>b.length_W)?a.length_W:b.length_W);
+		c.wordv = malloc(MIN(a.length_W, b.length_W) * sizeof(bigint_word_t));
+		d.wordv = malloc((MAX(a.length_W, b.length_W) + 1) * sizeof(bigint_word_t));
+		e.wordv = malloc((MAX(a.length_W, b.length_W) + 1) * sizeof(bigint_word_t));
 
 		cli_putstr_P(PSTR("\r\n gcdext( "));
 		bigint_print_hex(&a);
@@ -474,10 +477,10 @@ void test_gcdext_bigint(void){
 
 void test_simple(void){
 	bigint_t a, b, c;
-	uint8_t a_b[1], b_b[1], c_b[2];
-	a.wordv=a_b;
-	b.wordv=b_b;
-	c.wordv=c_b;
+	bigint_word_t a_b[1], b_b[1], c_b[2];
+	a.wordv = a_b;
+	b.wordv = b_b;
+	c.wordv = c_b;
 	a.length_W = 1;
 	b.length_W = 1;
 	a_b[0] = 1;
@@ -517,12 +520,12 @@ void test_mul_simple(void){
 	uint8_t b_b[8] = {0xe6, 0xdd, 0xce, 0x00, 0x44, 0x60, 0xda, 0x0d};
 
 	uint8_t c_b[16];
-	a.wordv=a_b;
-	b.wordv=b_b;
-	c.wordv=c_b;
-	a.length_W = 8;
-	b.length_W = 8;
-	a.info=0x80;
+	a.wordv = (bigint_word_t*)a_b;
+	b.wordv = (bigint_word_t*)b_b;
+	c.wordv = (bigint_word_t*)c_b;
+	a.length_W = 8 / sizeof(bigint_word_t);
+	b.length_W = 8 / sizeof(bigint_word_t);
+	a.info = 0x80;
 	bigint_adjust(&a);
 	bigint_adjust(&b);
 	bigint_mul_s(&c, &a, &b);
@@ -558,12 +561,12 @@ const uint8_t square_test_data[] PROGMEM = {
 void test_square_simple(void){
 	bigint_t a, c;
 
-	uint8_t a_b[11] = {0xe6, 0x70, 0x7d, 0x43, 0x74, 0x07, 0x20, 0x22, 0x6a, 0xb8, 0xf4};
-	uint8_t c_b[22];
-	a.wordv=a_b;
-	c.wordv=c_b;
-	a.length_W = 11;
-	a.info=0x00;
+	uint8_t a_b[16] = {0xe6, 0x70, 0x7d, 0x43, 0x74, 0x07, 0x20, 0x22, 0x6a, 0xb8, 0xf4, 0, 0, 0, 0, 0};
+	uint8_t c_b[32];
+	a.wordv = (bigint_word_t*)a_b;
+	c.wordv = (bigint_word_t*)c_b;
+	a.length_W = 16 / sizeof(bigint_word_t);
+	a.info = 0x00;
 	bigint_adjust(&a);
 	bigint_square(&c, &a);
 	cli_putstr_P(PSTR("\r\n test: "));
@@ -576,18 +579,18 @@ void test_square_simple(void){
 void test_reduce_simple(void){
 	bigint_t a, b, c;
 
-	uint8_t a_b[2] = {0x62, 0xA8};
-	uint8_t b_b[2] = {0x52, 0x27};
-	uint8_t c_b[2];
-	a.wordv=a_b;
-	a.length_W = 2;
-	a.info=0x00;
+	uint8_t a_b[4] = {0x62, 0xA8};
+	uint8_t b_b[4] = {0x52, 0x27};
+	uint8_t c_b[4];
+	a.wordv = (bigint_word_t*)a_b;
+	a.length_W = 4 / sizeof(bigint_word_t);
+	a.info = 0x00;
 	bigint_adjust(&a);
-	b.wordv=b_b;
-	b.length_W = 2;
-	b.info=0x00;
+	b.wordv = (bigint_word_t*)b_b;
+	b.length_W = 4 / sizeof(bigint_word_t);
+	b.info = 0x00;
 	bigint_adjust(&b);
-	c.wordv = c_b;
+	c.wordv = (bigint_word_t*)c_b;
 	bigint_copy(&c, &a);
 	bigint_reduce(&c, &b);
 	cli_putstr_P(PSTR("\r\n test: "));
@@ -605,20 +608,20 @@ void test_reduce_simple(void){
 void test_gcdext_simple(void){
 	bigint_t a, b, c, d, e;
 
-	uint8_t a_b[5] = {0x71, 0x07, 0x00, 0x09, 0x16};
-	uint8_t b_b[5] = {0x72, 0x7D, 0x57, 0xAC, 0X6F};
-	uint8_t c_b[6], d_b[6], e_b[6];
-	a.wordv=a_b;
-	a.length_W = 5;
-	a.info=0x00;
+	uint8_t a_b[8] = {0x71, 0x07, 0x00, 0x09, 0x16};
+	uint8_t b_b[8] = {0x72, 0x7D, 0x57, 0xAC, 0X6F};
+	uint8_t c_b[8], d_b[8], e_b[8];
+	a.wordv = (bigint_word_t*)a_b;
+	a.length_W = 8 / sizeof(bigint_word_t);
+	a.info = 0x00;
 	bigint_adjust(&a);
-	b.wordv=b_b;
-	b.length_W = 5;
-	b.info=0x00;
+	b.wordv = (bigint_word_t*)b_b;
+	b.length_W = 8 / sizeof(bigint_word_t);
+	b.info = 0x00;
 	bigint_adjust(&b);
-	c.wordv = c_b;
-	d.wordv = d_b;
-	e.wordv = e_b;
+	c.wordv = (bigint_word_t*)c_b;
+	d.wordv = (bigint_word_t*)d_b;
+	e.wordv = (bigint_word_t*)e_b;
 	bigint_gcdext(&c, &d, &e, &a, &b);
 	cli_putstr_P(PSTR("\r\n test: gcd( "));
 	bigint_print_hex(&a);

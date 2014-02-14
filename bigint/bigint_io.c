@@ -90,20 +90,21 @@ uint8_t bigint_read_hex_echo(bigint_t *a) {
 	uint16_t allocated = 0;
 	uint8_t  shift4 = 0;
 	uint16_t  t, idx = 0;
+	uint8_t *buf = NULL;
 	a->length_W = 0;
 	a->wordv = NULL;
 	a->info = 0;
 	for (;;) {
 		if (allocated - idx < 1) {
-			bigint_word_t *p;
-			p = realloc(a->wordv, allocated += BLOCKSIZE);
+			uint8_t *p;
+			p = realloc(buf, (allocated += BLOCKSIZE) * sizeof(bigint_word_t));
 			if (p == NULL) {
 				cli_putstr("\r\nERROR: Out of memory!");
-				free(a->wordv);
+				free(buf);
 				return 0xff;
 			}
-			memset((uint8_t*)p + allocated - BLOCKSIZE, 0, BLOCKSIZE);
-			a->wordv = p;
+			memset((uint8_t*)p + (allocated - BLOCKSIZE) * sizeof(bigint_word_t), 0, BLOCKSIZE * sizeof(bigint_word_t));
+			buf = p;
 		}
 		t = read_byte();
 		if (idx == 0) {
@@ -120,11 +121,11 @@ uint8_t bigint_read_hex_echo(bigint_t *a) {
 			}
 		}
 		if (t <= 0x00ff) {
-			((uint8_t*)(a->wordv))[idx++] = (uint8_t)t;
+			buf[idx++] = (uint8_t)t;
 		} else {
 			if (t & 0x0200) {
 				shift4 = 1;
-				((uint8_t*)(a->wordv))[idx++] = (uint8_t)((t & 0x0f) << 4);
+				buf[idx++] = (uint8_t)((t & 0x0f) << 4);
 			}
 			break;
 		}
@@ -133,14 +134,15 @@ uint8_t bigint_read_hex_echo(bigint_t *a) {
 	uint8_t tmp;
 	uint8_t *p, *q;
 	a->length_W = (idx + sizeof(bigint_word_t) - 1) / sizeof(bigint_word_t);
-	p = (uint8_t*)(a->wordv);
-	q = (uint8_t*)a->wordv + a->length_W * sizeof(bigint_word_t) - 1;
+	p = buf;
+	q = buf + idx - 1;
 	while (q > p) {
 		tmp = *p;
 		*p = *q;
 		*q = tmp;
 		p++; q--;
 	}
+	a->wordv = (bigint_word_t*)buf;
 	bigint_adjust(a);
 	if (shift4) {
 		bigint_shiftright(a, 4);

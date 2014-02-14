@@ -30,13 +30,28 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <limits.h>
 
+#define BIGINT_WORD_SIZE 8
+
+#if BIGINT_WORD_SIZE == 8
 typedef uint8_t  bigint_word_t;
 typedef uint16_t bigint_wordplus_t;
 typedef int16_t  bigint_wordplus_signed_t;
-#define BIGINT_WORD_SIZE 8
+#elif BIGINT_WORD_SIZE == 16
+typedef uint16_t  bigint_word_t;
+typedef uint32_t bigint_wordplus_t;
+typedef int32_t  bigint_wordplus_signed_t;
+#elif BIGINT_WORD_SIZE == 32
+typedef uint32_t  bigint_word_t;
+typedef uint64_t bigint_wordplus_t;
+typedef int64_t  bigint_wordplus_signed_t;
+#else
+#error "INVALID VALUE FOR BIGINT_WORD_SIZE"
+#endif
 
-#define BIGINT_FBS_MASK (BIGINT_WORD_SIZE-1) /* the last five bits indicate which is the first bit set */
+
+#define BIGINT_FBS_MASK (BIGINT_WORD_SIZE - 1) /* the last five bits indicate which is the first bit set */
 #define BIGINT_NEG_MASK 0x80 /* this bit indicates a negative value */
 
 typedef size_t bigint_length_t;
@@ -87,6 +102,7 @@ void   bigint_mont_trans(bigint_t *dest, const bigint_t *a, const bigint_t *m);
 void   bigint_expmod_u(bigint_t *dest, const bigint_t *a, const bigint_t *exp, const bigint_t *r);
 void   bigint_expmod_u_sam(bigint_t *dest, const bigint_t *a, const bigint_t *exp, const bigint_t *r);
 void   bigint_expmod_u_mont_sam(bigint_t *dest, const bigint_t *a, const bigint_t *exp, const bigint_t *r);
+void   bigint_expmod_u_mont_accel(bigint_t *dest, const bigint_t *a, const bigint_t *exp, const bigint_t *r, const bigint_t *m_);
 
 
 #endif /*BIGINT_H_*/

@@ -172,7 +172,7 @@ def screen_progress(v)
   end
   putc((v)?('*'):('!'))
   $testno += 1
-  $linepos = ($linepos+1)%$linewidth
+  $linepos = ($linepos+1) % $linewidth
 end
 
 ################################################################################
@@ -850,7 +850,7 @@ def run_test_expmodmont(skip=0)
       screen_progress(v)
       end
     (0..16).each do |i|
-      b_size = rand(length_b_B+1)
+      b_size = rand(length_b_B + 10)
       a = rand(256 ** length_a_B)
       b = rand(256 ** b_size) + 1 
       c = rand(256 ** b_size) / 2 * 2 +1
@@ -988,7 +988,7 @@ if File.exists?(logfilename)
     n1 = sprintf('%s%04d%s', conf['PORT']['testlogbase']+'bigint_',i-2,'.txt')
     n2 = sprintf('%s%04d%s', conf['PORT']['testlogbase']+'bigint_',i-1,'.txt')
     File.rename(n1, n2)
-    printf("%s -> %s\n", n1, n2) 
+#    printf("%s -> %s\n", n1, n2) 
     i-=1
   end
   n1 = sprintf('%s%s', conf['PORT']['testlogbase'],'bigint.txt')
