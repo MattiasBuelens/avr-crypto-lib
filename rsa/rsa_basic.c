@@ -28,6 +28,7 @@
 
 #if DEBUG
 #include "cli.h"
+#include <stdio.h>
 #endif
 
 void rsa_enc(bigint_t *data, const rsa_publickey_t *key){
@@ -101,7 +102,7 @@ uint8_t rsa_dec_crt_mono(bigint_t *data, const rsa_privatekey_t *key){
 	while(BIGINT_NEG_MASK & m1.info){
 #if DEBUG
 	cli_putstr_P(PSTR("\r\nDBG: adding "));
-	bigint_print_hex(key->components[0]);
+	bigint_print_hex(&key->components[0]);
 	cli_putstr_P(PSTR("\r\nDBG: to "));
 	bigint_print_hex(&m1);
 #endif

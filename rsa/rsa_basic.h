@@ -33,7 +33,6 @@ typedef struct {
 	bigint_t *components;
 } rsa_privatekey_t;
 
-
 typedef struct {
 	rsa_privatekey_t priv;
 	rsa_publickey_t  pub;

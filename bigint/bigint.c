@@ -97,9 +97,9 @@ bigint_length_t bigint_length_B(const bigint_t *a){
 
 /******************************************************************************/
 
-uint32_t bigint_get_first_set_bit(const bigint_t *a){
+int32_t bigint_get_first_set_bit(const bigint_t *a){
 	if(a->length_W == 0) {
-		return (uint32_t)(-1);
+		return -1;
 	}
 	return (a->length_W-1) * sizeof(bigint_word_t) * CHAR_BIT + GET_FBS(a);
 }
@@ -107,24 +107,24 @@ uint32_t bigint_get_first_set_bit(const bigint_t *a){
 
 /******************************************************************************/
 
-uint32_t bigint_get_last_set_bit(const bigint_t *a){
-	uint32_t r=0;
-	uint8_t b=0;
-	bigint_word_t x=1;
-	if(a->length_W==0){
-		return (uint32_t)(-1);
+int32_t bigint_get_last_set_bit(const bigint_t *a){
+	uint32_t r = 0;
+	uint8_t b = 0;
+	bigint_word_t x = 1;
+	if (a->length_W == 0) {
+		return -1;
 	}
-	while(a->wordv[r]==0 && r<a->length_W){
+	while (a->wordv[r] == 0 && r < a->length_W) {
 		++r;
 	}
-	if(a->wordv[r] == 0){
+	if (a->wordv[r] == 0) {
 		return (uint32_t)(-1);
 	}
-	while((x&a->wordv[r])==0){
+	while ((x&a->wordv[r])==0) {
 		++b;
 		x <<= 1;
 	}
-	return r*BIGINT_WORD_SIZE+b;
+	return r * BIGINT_WORD_SIZE + b;
 }
 
 /******************************************************************************/
@@ -374,7 +374,7 @@ void bigint_shiftleft(bigint_t *a, bigint_length_t shift){
 	bigint_word_t *p;
 	bigint_wordplus_t t = 0;
 
-	if (shift == 0) {
+	if (a->length_W == 0 || shift == 0) {
 		return;
 	}
 	byteshift = shift / 8;
@@ -416,6 +416,10 @@ void bigint_shiftright(bigint_t *a, bigint_length_t shift){
 	byteshift = shift / 8;
 	bitshift = shift & 7;
 
+	if (a->length_W == 0) {
+	    return;
+	}
+
 	if(bigint_get_first_set_bit(a) < shift){ /* we would shift out more than we have */
 		bigint_set_zero(a);
 		return;
@@ -424,9 +428,9 @@ void bigint_shiftright(bigint_t *a, bigint_length_t shift){
 	if(byteshift){
 		memmove(a->wordv, (uint8_t*)a->wordv + byteshift, a->length_W * sizeof(bigint_word_t) - byteshift);
 		memset((uint8_t*)&a->wordv[a->length_W] - byteshift, 0, byteshift);
+	    a->length_W -= byteshift / sizeof(bigint_word_t);
 	}
 
-    a->length_W -= byteshift / sizeof(bigint_word_t);
 
     if(bitshift != 0 && a->length_W){
 	 /* shift to the right */
