@@ -588,11 +588,13 @@ void quick_test(void){
 
 	cli_putstr_P(PSTR("\r\n\r\nciphertext:"));
 	cli_hexdump_block(ciphertext, clen, 4, 16);
-	if(clen!=sizeof(ENCRYPTED)){
+	if(clen != sizeof(ENCRYPTED)){
 			cli_putstr_P(PSTR("\r\n>>FAIL (no size match)<<"));
+			return;
 	}else{
 		if(memcmp_P(ciphertext, ENCRYPTED, clen)){
 			cli_putstr_P(PSTR("\r\n>>FAIL (no content match)<<"));
+			return;
 		}else{
 			cli_putstr_P(PSTR("\r\n>>OK<<"));
 		}

@@ -32,7 +32,7 @@
 #include <stdint.h>
 #include <limits.h>
 
-#define BIGINT_WORD_SIZE 8
+#define BIGINT_WORD_SIZE 32
 
 #if BIGINT_WORD_SIZE == 8
 typedef uint8_t  bigint_word_t;
@@ -80,7 +80,10 @@ int8_t bigint_cmp_u(const bigint_t * a, const bigint_t * b);
 void   bigint_add_s(bigint_t *dest, const bigint_t *a, const bigint_t *b);
 void   bigint_sub_s(bigint_t *dest, const bigint_t *a, const bigint_t *b);
 int8_t bigint_cmp_s(const bigint_t *a, const bigint_t *b);
+void   bigint_shiftleft_bits(bigint_t *a, uint8_t shift);
 void   bigint_shiftleft(bigint_t *a, bigint_length_t shift);
+void   bigint_shiftright_1bit(bigint_t *a);
+void   bigint_shiftright_1word(bigint_t *a);
 void   bigint_shiftright(bigint_t *a, bigint_length_t shift);
 void   bigint_xor(bigint_t *dest, const bigint_t *a);
 void   bigint_set_zero(bigint_t *a);

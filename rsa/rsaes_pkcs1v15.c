@@ -79,7 +79,7 @@ uint8_t rsa_encrypt_pkcs1v15(void *dest, uint16_t *out_length, const void *src,
 	cli_hexdump_block(x.wordv, x.length_W * sizeof(bigint_word_t), 4, 16);
 #endif
 	bigint_adjust(&x);
-	rsa_os2ip(&x, NULL, length_B+pad_length+3);
+	rsa_os2ip(&x, NULL, length_B + pad_length + 3);
 	rsa_enc(&x, key);
 	rsa_i2osp(NULL, &x, out_length);
 	return 0;

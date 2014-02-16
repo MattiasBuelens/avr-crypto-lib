@@ -189,13 +189,12 @@ void rsa_os2ip(bigint_t *dest, const void *data, uint32_t length_B){
 	uint8_t off;
 	off = (sizeof(bigint_word_t) - length_B % sizeof(bigint_word_t)) % sizeof(bigint_word_t);
 #if DEBUG
-	cli_putstr_P(PSTR("\r\nDBG: off = 0x"));
-	cli_hexdump_byte(off);
+	printf("\r\nDBG: off = 0x%02x", off);
 #endif
-	if(!data){
-		if(off){
+	if (!data) {
+		if (off) {
 			dest->wordv = realloc(dest->wordv, length_B + sizeof(bigint_word_t) - off);
-			memmove((uint8_t*)dest->wordv+off, dest->wordv, length_B);
+			memmove((uint8_t*)dest->wordv + off, dest->wordv, length_B);
 			memset(dest->wordv, 0, off);
 		}
 	}else{
@@ -206,8 +205,7 @@ void rsa_os2ip(bigint_t *dest, const void *data, uint32_t length_B){
 	}
 	dest->length_W = (length_B + off) / sizeof(bigint_word_t);
 #if DEBUG
-	cli_putstr_P(PSTR("\r\nDBG: dest->length_W = 0x"));
-	cli_hexdump_rev(&(dest->length_W), 2);
+	printf("\r\nDBG: dest->length_W = %u", dest->length_W);
 #endif
 #endif
 	dest->info = 0;
