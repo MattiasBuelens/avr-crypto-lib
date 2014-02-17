@@ -1253,7 +1253,7 @@ void bigint_expmod_u(bigint_t *dest, const bigint_t *a, const bigint_t *exp, con
     printf("\n\tm: ");
     bigint_print_hex(r);
 #endif
-    if (0 &&  r->wordv[0] & 1) {
+    if (r->wordv[0] & 1) {
         bigint_expmod_u_mont_sam(dest, a, exp, r);
     } else {
         bigint_expmod_u_sam(dest, a, exp, r);
