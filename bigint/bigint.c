@@ -32,13 +32,22 @@
 
 #include "bigint.h"
 #include <string.h>
+#include <stdio.h>
 
 #define PREFERE_HEAP_SPACE 1
 
 #if PREFERE_HEAP_SPACE
 #include <stdlib.h>
 
-#define ALLOC_BIGINT_WORDS(var,words) bigint_word_t *(var) = malloc((words) * sizeof(bigint_word_t))
+#define ALLOC_BIGINT_WORDS(var,words)                                      \
+    bigint_word_t *(var) = malloc((words) * sizeof(bigint_word_t));        \
+    if (!(var)) {                                                          \
+        puts_P(PSTR("\n\nDBG: OOM ERROR (in arithmeics)!\n"));             \
+        uart0_flush();                                                     \
+        for(;;)                                                            \
+            ;                                                              \
+    }
+
 #define FREE(x) free(x)
 
 #else
@@ -50,11 +59,10 @@
 
 #define DEBUG 1
 
-#if DEBUG || 1
+#if DEBUG
 #include "cli.h"
 #include "uart_i.h"
 #include "bigint_io.h"
-#include <stdio.h>
 #endif
 
 #ifndef MAX
@@ -881,17 +889,24 @@ void bigint_gcdext(bigint_t *gcd, bigint_t *a, bigint_t *b, const bigint_t *x, c
 	 while(x->wordv[i] == 0 && y->wordv[i] == 0){
 		 ++i;
 	 }
-	 bigint_word_t g_b[i + 2], x_b[x->length_W - i], y_b[y->length_W - i];
-	 bigint_word_t u_b[x->length_W - i], v_b[y->length_W - i];
-	 bigint_word_t a_b[y->length_W + 2], c_b[y->length_W + 2];
-	 bigint_word_t b_b[x->length_W + 2], d_b[x->length_W + 2];
-     bigint_t g, x_, y_, u, v, a_, b_, c_, d_;
 
-	 g.wordv = g_b;
-	 x_.wordv = x_b;
-	 y_.wordv = y_b;
-	 memset(g_b, 0, i * sizeof(bigint_word_t));
-	 g_b[i] = 1;
+	 ALLOC_BIGINT_WORDS(g_w, i + 2);
+	 ALLOC_BIGINT_WORDS(x_w, x->length_W - i);
+	 ALLOC_BIGINT_WORDS(y_w, y->length_W - i);
+	 ALLOC_BIGINT_WORDS(u_w, x->length_W - i);
+     ALLOC_BIGINT_WORDS(v_w, y->length_W - i);
+     ALLOC_BIGINT_WORDS(a_w, y->length_W + 2);
+     ALLOC_BIGINT_WORDS(c_w, y->length_W + 2);
+     ALLOC_BIGINT_WORDS(b_w, x->length_W + 2);
+     ALLOC_BIGINT_WORDS(d_w, x->length_W + 2);
+
+	 bigint_t g, x_, y_, u, v, a_, b_, c_, d_;
+
+	 g.wordv = g_w;
+	 x_.wordv = x_w;
+	 y_.wordv = y_w;
+	 memset(g_w, 0, i * sizeof(bigint_word_t));
+	 g_w[i] = 1;
 	 g.length_W = i + 1;
 	 g.info = 0;
 	 x_.info = y_.info = 0;
@@ -912,12 +927,12 @@ void bigint_gcdext(bigint_t *gcd, bigint_t *a, bigint_t *b, const bigint_t *x, c
 		 bigint_shiftright_bits(&y_, i);
 	 }
 
-	 u.wordv = u_b;
-	 v.wordv = v_b;
-	 a_.wordv = a_b;
-	 b_.wordv = b_b;
-	 c_.wordv = c_b;
-	 d_.wordv = d_b;
+	 u.wordv = u_w;
+	 v.wordv = v_w;
+	 a_.wordv = a_w;
+	 b_.wordv = b_w;
+	 c_.wordv = c_w;
+	 d_.wordv = d_w;
 
 	 bigint_copy(&u, &x_);
 	 bigint_copy(&v, &y_);
@@ -1017,7 +1032,6 @@ void bigint_mul_word_u(bigint_t *a, bigint_word_t b){
 }
 
 /******************************************************************************/
-#if 1
 
 void bigint_clip(bigint_t *dest, bigint_length_t length_W){
     if(dest->length_W > length_W){
@@ -1025,8 +1039,8 @@ void bigint_clip(bigint_t *dest, bigint_length_t length_W){
     }
     bigint_adjust(dest);
 }
-/******************************************************************************/
 
+/******************************************************************************/
 /*
  * m_ = m * m'[0]
  * dest = (a * b) % m (?)
@@ -1241,8 +1255,6 @@ void bigint_expmod_u_mont_sam(bigint_t *dest, const bigint_t *a, const bigint_t 
 }
 
 /******************************************************************************/
-
-#endif
 
 void bigint_expmod_u(bigint_t *dest, const bigint_t *a, const bigint_t *exp, const bigint_t *r){
 #if 0
