@@ -492,6 +492,9 @@ void testrun_genkey1(void){
     printf_P(PSTR("\n  Qy: "));
     bigint_print_hex(&qa.y);
     puts("\n");
+
+    ecc_affine_point_free(&qa);
+    ecc_chudnovsky_point_free(&q);
 }
 
 void testrun_genkey3(void){
@@ -531,6 +534,10 @@ void testrun_genkey3(void){
     printf_P(PSTR("\n  Qy: "));
     bigint_print_hex(&qa.y);
     puts("\n");
+
+    ecc_affine_point_free(&qa);
+    ecc_chudnovsky_point_free(&q);
+
 }
 
 void testrun_genkey(void){
@@ -589,6 +596,78 @@ void testrun_genkey(void){
     ecc_chudnovsky_point_free(&q);
     ecc_affine_point_free(&qa);
 }
+/*
+N is
+3128D2B4 B1C96B14 36F8DE99 FFFFFFFF FFFFFFFF FFFFFFFF 99DEF836 146BC9B1 B4D22831
+--------------------------------------------------------------
+C is
+78916860 32FD8057 F636B44B 1F47CCE5 64D25099 23A7465A
+--------------------------------------------------------------
+D is
+78916860 32FD8057 F636B44B 1F47CCE5 64D25099 23A7465B
+Q_x is
+FBA2AAC6 47884B50 4EB8CD5A 0A1287BA BCC62163 F606A9A2
+Q_y is
+DAE6D4CC 05EF4F27 D79EE38B 71C9C8EF 4865D988 50D84AA5
+*/
+
+void testrun_interm(void){
+    ecc_chudnovsky_point_t q;
+    ecc_affine_point_t qa;
+    uint32_t time;
+    bigint_t k;
+    uint8_t r;
+
+    printf_P(PSTR("\n== testing key generation ==\n"));
+
+    printf_P(PSTR("enter secret key d: "));
+    bigint_read_hex_echo(&k);
+    putchar('\n');
+
+    if(ecc_chudnovsky_point_alloc(&q, 192)){
+        printf_P(PSTR("ERROR: OOM! <%s %s %d>\n"), __FILE__, __func__, __LINE__);
+        return;
+    }
+    if(ecc_affine_point_alloc(&qa, 192)){
+        ecc_chudnovsky_point_free(&q);
+        printf_P(PSTR("ERROR: OOM! <%s %s %d>\n"), __FILE__, __func__, __LINE__);
+        return;
+    }
+
+    printf_P(PSTR("(naf)  k:  "));
+    bigint_print_hex(&k);
+    startTimer(1);
+    START_TIMER;
+    r = ecc_chudnovsky_naf_multiplication(&q, &k, &nist_curve_p192_basepoint.chudnovsky, &nist_curve_p192);
+    STOP_TIMER;
+    time = stopTimer();
+    ecc_chudnovsky_to_affine_point(&qa, &q, &nist_curve_p192);
+
+    printf_P(PSTR("\n  Qx: "));
+    bigint_print_hex(&qa.x);
+    printf_P(PSTR("\n  Qy: "));
+    bigint_print_hex(&qa.y);
+    printf_P(PSTR("\n time: %"PRIu32" cycles (r code: %"PRIu8")\n"), time, r);
+
+    printf_P(PSTR("(d&a)  k:  "));
+    bigint_print_hex(&k);
+    startTimer(1);
+    START_TIMER;
+    r = ecc_chudnovsky_double_and_add(&q, &k, &nist_curve_p192_basepoint.chudnovsky, &nist_curve_p192);
+    STOP_TIMER;
+    time = stopTimer();
+    ecc_chudnovsky_to_affine_point(&qa, &q, &nist_curve_p192);
+
+    printf_P(PSTR("\n  Qx: "));
+    bigint_print_hex(&qa.x);
+    printf_P(PSTR("\n  Qy: "));
+    bigint_print_hex(&qa.y);
+    printf_P(PSTR("\n time: %"PRIu32" cycles (r code: %"PRIu8")\n"), time, r);
+    free(k.wordv);
+    ecc_chudnovsky_point_free(&q);
+    ecc_affine_point_free(&qa);
+}
+
 
 
 #endif

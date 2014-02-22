@@ -982,6 +982,16 @@ void bigint_gcdext(bigint_t *gcd, bigint_t *a, bigint_t *b, const bigint_t *x, c
 	 if(b){
 		 bigint_copy(b, &d_);
 	 }
+
+	 FREE(d_w);
+	 FREE(b_w);
+	 FREE(c_w);
+	 FREE(a_w);
+     FREE(v_w);
+     FREE(u_w);
+     FREE(y_w);
+     FREE(x_w);
+     FREE(g_w);
 }
 
 /******************************************************************************/

@@ -146,25 +146,25 @@ const uint8_t pc2_permtab[] PROGMEM = {
 
 const uint8_t splitin6bitword_permtab[] PROGMEM = {
 	 8,  8, 					/* 64 bit -> 64 bit */
-	64, 64,  1,  6,  2,  3,  4,  5, 
-	64, 64,  7, 12,  8,  9, 10, 11, 
-	64, 64, 13, 18, 14, 15, 16, 17, 
-	64, 64, 19, 24, 20, 21, 22, 23, 
-	64, 64, 25, 30, 26, 27, 28, 29, 
-	64, 64, 31, 36, 32, 33, 34, 35, 
-	64, 64, 37, 42, 38, 39, 40, 41, 
-	64, 64, 43, 48, 44, 45, 46, 47 
+	64, 64,  1,  6,  2,  3,  4,  5,
+	64, 64,  7, 12,  8,  9, 10, 11,
+	64, 64, 13, 18, 14, 15, 16, 17,
+	64, 64, 19, 24, 20, 21, 22, 23,
+	64, 64, 25, 30, 26, 27, 28, 29,
+	64, 64, 31, 36, 32, 33, 34, 35,
+	64, 64, 37, 42, 38, 39, 40, 41,
+	64, 64, 43, 48, 44, 45, 46, 47
 };
 
 const uint8_t shiftkey_permtab[] PROGMEM = {
 	 7,  7, 					/* 56 bit -> 56 bit */
 	 2,  3,  4,  5,  6,  7,  8,  9,
 	10, 11, 12, 13, 14, 15, 16, 17,
-	18, 19, 20, 21, 22, 23, 24, 25, 
-	26, 27, 28,  1, 
-	30, 31, 32, 33, 34, 35, 36, 37, 
-	38, 39, 40, 41, 42, 43, 44, 45, 
-	46, 47, 48, 49, 50, 51, 52, 53, 
+	18, 19, 20, 21, 22, 23, 24, 25,
+	26, 27, 28,  1,
+	30, 31, 32, 33, 34, 35, 36, 37,
+	38, 39, 40, 41, 42, 43, 44, 45,
+	46, 47, 48, 49, 50, 51, 52, 53,
 	54, 55, 56, 29
 };
 
@@ -174,9 +174,9 @@ const uint8_t shiftkeyinv_permtab[] PROGMEM = {
 	 8,  9, 10, 11, 12, 13, 14, 15,
 	16, 17, 18, 19, 20, 21, 22, 23,
 	24, 25, 26, 27,
-	56, 29, 30, 31, 32, 33, 34, 35, 
-	36, 37, 38, 39, 40, 41, 42, 43, 
-	44, 45, 46, 47, 48, 49, 50, 51, 
+	56, 29, 30, 31, 32, 33, 34, 35,
+	36, 37, 38, 39, 40, 41, 42, 43,
+	44, 45, 46, 47, 48, 49, 50, 51,
 	52, 53, 54, 55
 };
 
@@ -235,7 +235,7 @@ static inline
 void shiftkey(uint8_t *key){
 	uint8_t k[7];
 	memcpy(k, key, 7);
-	permute((uint8_t*)shiftkey_permtab, k, key);	
+	permute((uint8_t*)shiftkey_permtab, k, key);
 }
 
 /******************************************************************************/
@@ -244,7 +244,7 @@ void shiftkey_inv(uint8_t *key){
 	uint8_t k[7];
 	memcpy(k, key, 7);
 	permute((uint8_t*)shiftkeyinv_permtab, k, key);
-	
+
 }
 
 /******************************************************************************/
@@ -252,7 +252,7 @@ static inline
 uint64_t splitin6bitwords(uint64_t a){
 	uint64_t ret=0;
 	a &= 0x0000ffffffffffffLL;
-	permute((uint8_t*)splitin6bitword_permtab, (uint8_t*)&a, (uint8_t*)&ret);	
+	permute((uint8_t*)splitin6bitword_permtab, (uint8_t*)&a, (uint8_t*)&ret);
 	return ret;
 }
 
@@ -260,11 +260,11 @@ uint64_t splitin6bitwords(uint64_t a){
 
 static inline
 uint8_t substitute(uint8_t a, uint8_t * sbp){
-	uint8_t x;	
+	uint8_t x;
 	x = pgm_read_byte(&sbp[a>>1]);
 	x = (a&1)?x&0x0F:x>>4;
 	return x;
-	
+
 }
 
 /******************************************************************************/
@@ -273,11 +273,11 @@ uint32_t des_f(uint32_t r, uint8_t *kr){
 	uint8_t i;
 	uint32_t t=0,ret;
 	uint64_t data;
-	uint8_t *sbp; /* sboxpointer */ 
+	uint8_t *sbp; /* sboxpointer */
 	permute((uint8_t*)e_permtab, (uint8_t*)&r, (uint8_t*)&data);
 	for(i=0; i<7; ++i)
 		((uint8_t*)&data)[i] ^= kr[i];
-	
+
 	/* Sbox substitution */
 	data = splitin6bitwords(data);
 	sbp=(uint8_t*)sbox;
@@ -289,7 +289,7 @@ uint32_t des_f(uint32_t r, uint8_t *kr){
 		sbp += 32;
 	}
 	changeendian32(&t);
-		
+
 	permute((uint8_t*)p_permtab,(uint8_t*)&t, (uint8_t*)&ret);
 
 	return ret;
@@ -307,7 +307,7 @@ void des_enc(void *out, const void *in, const void *key){
 		uint8_t v8[8];
 		uint32_t v32[2];
 	} data;
-	
+
 	permute((uint8_t*)ip_permtab, (uint8_t*)in, data.v8);
 	permute((uint8_t*)pc1_permtab, (const uint8_t*)key, k);
 	for(i=0; i<8; ++i){
@@ -316,7 +316,7 @@ void des_enc(void *out, const void *in, const void *key){
 			shiftkey(k);
 		permute((uint8_t*)pc2_permtab, k, kr);
 		L ^= des_f(R, kr);
-		
+
 		shiftkey(k);
 		if(ROTTABLE&((1<<((i<<1)+1))) )
 			shiftkey(k);
@@ -343,7 +343,7 @@ void des_dec(void *out, const void *in, const uint8_t *key){
 	permute((uint8_t*)ip_permtab, (uint8_t*)in, data.v8);
 	permute((uint8_t*)pc1_permtab, (const uint8_t*)key, k);
 	for(i=7; i>=0; --i){
-		
+
 		permute((uint8_t*)pc2_permtab, k, kr);
 		L ^= des_f(R, kr);
 		shiftkey_inv(k);

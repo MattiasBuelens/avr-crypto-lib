@@ -1,21 +1,21 @@
 /* cubehash.h */
 /*
-    This file is part of the AVR-Crypto-Lib.
-    Copyright (C) 2010 Daniel Otte (daniel.otte@rub.de)
+ This file is part of the AVR-Crypto-Lib.
+ Copyright (C) 2010 Daniel Otte (daniel.otte@rub.de)
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #ifndef CUBEHASH_H_
 #define CUBEHASH_H_
@@ -32,9 +32,9 @@
 #define CUBEHASH512_BLOCKSIZE_B ((CUBEHASH512_BLOCKSIZE+7)/8)
 
 typedef struct {
-	uint32_t a[32];
-	uint8_t rounds;
-	uint8_t blocksize_B;
+    uint32_t a[32];
+    uint8_t rounds;
+    uint8_t blocksize_B;
 } cubehash_ctx_t;
 
 void cubehash_init(uint8_t r, uint8_t b, uint16_t h, cubehash_ctx_t *ctx);

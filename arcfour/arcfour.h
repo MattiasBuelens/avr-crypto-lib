@@ -1,21 +1,21 @@
 /* arcfour.h */
 /*
-    This file is part of the AVR-Crypto-Lib.
-    Copyright (C) 2008  Daniel Otte (daniel.otte@rub.de)
+ This file is part of the AVR-Crypto-Lib.
+ Copyright (C) 2008  Daniel Otte (daniel.otte@rub.de)
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 /*
  * File:	arcfour.h
  * Author:	Daniel Otte
@@ -38,7 +38,6 @@
  * http://www.mozilla.org/projects/security/pki/nss/draft-kaukonen-cipher-arcfour-03.txt
  */
 
-
 #ifndef ARCFOUR_H_
 #define ARCFOUR_H_
 
@@ -59,10 +58,9 @@
  * The struct holds the two indices and the S-Box
  */
 typedef struct arcfour_ctx_st {
-	uint8_t i,j;
-	uint8_t s[256];
+    uint8_t i, j;
+    uint8_t s[256];
 } arcfour_ctx_t;
-
 
 /** \fn void arcfour_init(const void *key, uint8_t length_B, arcfour_ctx_t *ctx)
  * \brief setup a context with a key

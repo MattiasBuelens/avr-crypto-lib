@@ -32,7 +32,7 @@
 #include <stdint.h>
 #include <limits.h>
 
-#define BIGINT_WORD_SIZE 32
+#define BIGINT_WORD_SIZE 8
 
 #if BIGINT_WORD_SIZE == 8
 typedef uint8_t  bigint_word_t;

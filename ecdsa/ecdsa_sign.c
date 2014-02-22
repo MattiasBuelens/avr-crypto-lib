@@ -151,6 +151,7 @@ uint8_t ecdsa_sign_hash(ecdsa_signature_t *s, const void *hash,
             ((uint8_t*)m_int.wordv)[idx++] = ((uint8_t*)hash)[--hash_len_B];
         }
     }
+    bigint_adjust(&m_int);
     do{
         if(rand_in == NULL){
             size_t i;
