@@ -709,11 +709,19 @@ const uint8_t ecdsa_test_1_msg[] PROGMEM = {
     0x11, 0x43, 0x59, 0xce, 0xe4, 0xa0, 0x71, 0xcf
 };
 
+/*
+ * d = e14f37b3d1374ff8b03f41b9b3fdd2f0ebccf275d660d7f3
+ */
+
 const uint8_t ecdsa_test_1_d[] PROGMEM = {
     0xf3, 0xd7, 0x60, 0xd6, 0x75, 0xf2, 0xcc, 0xeb,
     0xf0, 0xd2, 0xfd, 0xb3, 0xb9, 0x41, 0x3f, 0xb0,
     0xf8, 0x4f, 0x37, 0xd1, 0xb3, 0x37, 0x4f, 0xe1
 };
+
+/*
+ * k = cb0abc7043a10783684556fb12c4154d57bc31a289685f25
+ */
 
 const uint8_t ecdsa_test_1_k[] PROGMEM = {
     0x25, 0x5f, 0x68, 0x89, 0xa2, 0x31, 0xbc, 0x57,
@@ -769,6 +777,7 @@ const uint8_t ecdsa_test_2_k[] PROGMEM = {
     0x47, 0xfa, 0x11, 0xbc, 0xb1, 0xc2, 0xe8, 0x41
 };
 
+#if 0
 void test_sign1(void){
     bigint_word_t d_w[sizeof(ecdsa_test_1_d)];
     uint8_t rnd[sizeof(ecdsa_test_1_k)];
@@ -783,8 +792,86 @@ void test_sign1(void){
     putchar('\n');
     d.wordv = d_w;
     memcpy_P(rnd, ecdsa_test_1_k, sizeof(ecdsa_test_1_k));
-    memcpy_P(d_w, ecdsa_test_1_d, sizeof(ecdsa_test_1_d) * sizeof(bigint_word_t));
-    d.length_W = sizeof(ecdsa_test_1_d) / sizeof(bigint_word_t);
+    memcpy_P(d_w, ecdsa_test_1_d, sizeof(ecdsa_test_1_d));
+    d.length_W = (sizeof(ecdsa_test_1_d) + sizeof(bigint_word_t) - 1) / sizeof(bigint_word_t);
+    d.info = 0;
+    bigint_adjust(&d);
+
+    hash_desc = &sha1_desc; //hash_select();
+    hash = malloc(hfal_hash_getHashsize(hash_desc) / 8);
+    if(hash == NULL){
+        printf_P(PSTR("DBG: XXX <%S %s %d>\n"), PSTR(__FILE__), __func__, __LINE__);
+    }
+    hash_mem_P(hash_desc, hash, ecdsa_test_1_msg, sizeof(ecdsa_test_1_msg) * 8);
+    printf_P(PSTR("msg hash: "));
+    cli_hexdump(hash, hfal_hash_getHashsize(hash_desc) / 8);
+    putchar('\n');
+
+    ecc_affine_point_alloc(&q.affine, nist_curve_p192_p.length_W * sizeof(bigint_word_t));
+//    ecc_chudnovsky_point_alloc(&q.chudnovsky, nist_curve_p192_p.length_W * sizeof(bigint_word_t));
+//    ctx.basepoint = &nist_curve_p192_basepoint.chudnovsky;
+    ctx.basepoint = &nist_curve_p192_basepoint.affine;
+    ctx.priv = &d;
+    ctx.curve = &nist_curve_p192;
+
+    printf("\n  d:  ");
+    bigint_print_hex(&d);
+    printf_P(PSTR("\n  Gx: "));
+    bigint_print_hex(&nist_curve_p192_basepoint.affine.x);
+    printf_P(PSTR("\n  Gy: "));
+    bigint_print_hex(&nist_curve_p192_basepoint.affine.y);
+
+//    r = ecc_chudnovsky_multiplication(&q.chudnovsky, &d, &nist_curve_p192_basepoint.chudnovsky, &nist_curve_p192);
+    r = ecc_????
+    if(r){
+        printf_P(PSTR("ERROR: ecc_chudnovsky_multiplication() returned: %"PRIu8"\n"), r);
+    }
+//    r = ecc_chudnovsky_to_affine_point(&q.affine, &q.chudnovsky, &nist_curve_p192);
+    if(r){
+        printf_P(PSTR("ERROR: ecc_chudnovsky_to_affine_point() returned: %"PRIu8"\n"), r);
+    }
+
+    printf_P(PSTR("\n  Qx: "));
+    bigint_print_hex(&q.affine.x);
+    printf_P(PSTR("\n  Qy: "));
+    bigint_print_hex(&q.affine.y);
+    putchar('\n');
+    ctx.pub = &q.affine;
+
+    ecdsa_signature_alloc(&sign, sizeof(ecdsa_test_1_d) * sizeof(bigint_word_t));
+
+    r = ecdsa_sign_hash(&sign, hash, hfal_hash_getHashsize(hash_desc) / 8, &ctx, rnd);
+    if(r){
+        printf_P(PSTR("ERROR: ecdsa_sign_message() returned: %"PRIu8"\n"), r);
+    }
+    printf_P(PSTR("  r: "));
+    bigint_print_hex(&sign.r);
+    printf_P(PSTR("\n  s: "));
+    bigint_print_hex(&sign.s);
+
+    free(hash);
+    ecdsa_signature_free(&sign);
+    ecc_chudnovsky_point_free(&q.chudnovsky);
+}
+
+#else
+
+void test_sign1(void){
+    bigint_word_t d_w[sizeof(ecdsa_test_1_d)];
+    uint8_t rnd[sizeof(ecdsa_test_1_k)];
+    uint8_t *hash;
+    bigint_t d;
+    const hfdesc_t *hash_desc;
+    ecc_combi_point_t q;
+    ecdsa_signature_t sign;
+    ecdsa_ctx_t ctx;
+    uint8_t r;
+
+    putchar('\n');
+    d.wordv = d_w;
+    memcpy_P(rnd, ecdsa_test_1_k, sizeof(ecdsa_test_1_k));
+    memcpy_P(d_w, ecdsa_test_1_d, sizeof(ecdsa_test_1_d));
+    d.length_W = (sizeof(ecdsa_test_1_d) + sizeof(bigint_word_t) - 1) / sizeof(bigint_word_t);
     d.info = 0;
     bigint_adjust(&d);
 
@@ -841,6 +928,8 @@ void test_sign1(void){
     ecdsa_signature_free(&sign);
     ecc_chudnovsky_point_free(&q.chudnovsky);
 }
+
+#endif
 
 void test_sign2(void){
     bigint_word_t d_w[sizeof(ecdsa_test_2_d)];

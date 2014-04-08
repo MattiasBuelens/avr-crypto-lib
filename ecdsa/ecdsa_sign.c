@@ -77,8 +77,14 @@ uint8_t ecdsa_sign_bigint(ecdsa_signature_t *s, const bigint_t *m,
     }
     ecc_chudnovsky_to_affine_point(&q.affine, &q.chudnovsky, ctx->curve);
     bigint_inverse(&s->s, k, ctx->curve->p);
+
+    printf_P(PSTR("x:   "));
+    bigint_print_hex(&q.affine.x);
+    putchar('\n');
+
     bigint_mul_u(&t, &q.affine.x, ctx->priv);
     ctx->curve->reduce_p(&t);
+
     printf_P(PSTR("msg:   "));
     bigint_print_hex(m);
     putchar('\n');
@@ -91,6 +97,7 @@ uint8_t ecdsa_sign_bigint(ecdsa_signature_t *s, const bigint_t *m,
     printf_P(PSTR("t (1): "));
     bigint_print_hex(&t);
     putchar('\n');
+
     bigint_add_u(&t, &t, m);
     ctx->curve->reduce_p(&t);
     printf_P(PSTR("t (2): "));

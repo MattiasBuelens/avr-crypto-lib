@@ -129,12 +129,12 @@ ecc_curve_sp_t nist_curve_p192 = {
 
 
 /*
- * A = ( A5 || A4 || A3 || A2 || A1 || A0 ) ; An if 64-bit
+ * A = ( A5 || A4 || A3 || A2 || A1 || A0 ) ; An is 64-bit
  * A mod p = B = T + S1 + S2 + S3 mod p
  *
  * T  = ( A2 || A1 || A0 )
- * S1 = ( A3 || A3 )
- * S2 = ( A4 || A4 || 0 )
+ * S1 = (  0 || A3 || A3 )
+ * S2 = ( A4 || A4 ||  0 )
  * S3 = ( A5 || A5 || A5 )
  *
  */
