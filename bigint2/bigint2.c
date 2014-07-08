@@ -700,9 +700,10 @@ int bigint_divide(bigint_t *q, bigint_t *r, const bigint_t *a, const bigint_t *b
     }
     i = la - lb;
     if (q) {
-        if ((ret = check_size(q, (i + BIGINT_WORD_SIZE - 1) / BIGINT_WORD_SIZE))) {
+        if ((ret = check_size(q, (i + BIGINT_WORD_SIZE) / BIGINT_WORD_SIZE))) {
             return ret;
         }
+        q->length_W = (i + BIGINT_WORD_SIZE) / BIGINT_WORD_SIZE;
         memset(q->wordv, 0, q->allocated_W * sizeof(bigint_word_t));
     }
     if (r) {

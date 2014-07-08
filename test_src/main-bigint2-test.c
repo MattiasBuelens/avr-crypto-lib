@@ -362,6 +362,41 @@ void test_reduce_bigint(void){
 	}
 }
 
+void test_div_bigint(void){
+    bigint_t a, b, c, d;
+    printf_P(PSTR("\ndiv test\n"));
+    for (;;) {
+        printf_P(PSTR("\nenter a:"));
+        if (bigint_read_hex_echo(&a, 0)) {
+            printf_P(PSTR("\n end div test"));
+            return;
+        }
+        printf_P(PSTR("\nenter b:"));
+        if (bigint_read_hex_echo(&b, 0)) {
+            free(a.wordv);
+            printf_P(PSTR("\n end div test"));
+            return;
+        }
+        printf_P(PSTR("\n "));
+        bigint_print_hex(&a);
+        printf_P(PSTR(" / "));
+        bigint_print_hex(&b);
+        printf_P(PSTR(" = "));
+        memset(&c, 0, sizeof(c));
+        memset(&d, 0, sizeof(d));
+        bigint_divide(&d, &c, &a, &b);
+        bigint_print_hex(&d);
+        printf_P(PSTR("; R = "));
+        bigint_print_hex(&c);
+        printf_P(PSTR("\n"));
+        bigint_free(&d);
+        bigint_free(&c);
+        bigint_free(&b);
+        bigint_free(&a);
+    }
+}
+
+
 #if 0
 /* d = a**b % c */
 void test_expmod_bigint(void){
@@ -524,6 +559,7 @@ const char mul_mont_test_str[]    PROGMEM = "mul-mont-test";
 const char mul_word_test_str[]    PROGMEM = "mul-word-test";
 const char square_test_str[]      PROGMEM = "square-test";
 const char reduce_test_str[]      PROGMEM = "reduce-test";
+const char div_test_str[]         PROGMEM = "div-test";
 const char expmod_test_str[]      PROGMEM = "expmod-test";
 const char expmod_mont_test_str[] PROGMEM = "expmod-mont-test";
 const char gcdext_test_str[]      PROGMEM = "gcdext-test";
@@ -539,7 +575,8 @@ const cmdlist_entry_t cmdlist[] PROGMEM = {
 //    { mul_mont_test_str,    NULL, test_mul_mont_bigint          },
     { mul_word_test_str,    NULL, test_mul_word_bigint          },
 	{ square_test_str,      NULL, test_square_bigint            },
-	{ reduce_test_str,      NULL, test_reduce_bigint            },
+    { reduce_test_str,      NULL, test_reduce_bigint            },
+	{ div_test_str,         NULL, test_div_bigint               },
 //    { expmod_test_str,      NULL, test_expmod_bigint            },
 //    { expmod_mont_test_str, NULL, test_expmod_mont_bigint       },
 	{ gcdext_test_str,      NULL, test_gcdext_bigint            },
