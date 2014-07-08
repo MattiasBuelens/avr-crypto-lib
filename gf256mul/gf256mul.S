@@ -62,8 +62,26 @@ gf256mul:
 
 #else
 
+/*
+
+uint8_t gf256mul(uint8_t a, uint8_t b, uint8_t p) {
+	uint8_t r = 0, c = 8;
+	do {
+	    if (a & 1) {
+	        r ^= b;
+	    }
+	    a >>= 1;
+	    if (b & 0x80) {
+	        b ^= p;
+	    }
+	    b <<= 1;
+	} while (--c);
+	return r;
+}
+
+ */
 gf256mul:
-	mov r21, r24
+	mov A, r24
 	clr r24
 	ldi r25, 8
 1:	
