@@ -76,35 +76,14 @@ uint8_t ecdsa_sign_bigint(ecdsa_signature_t *s, const bigint_t *m,
         return 2;
     }
     ecc_chudnovsky_to_affine_point(&q.affine, &q.chudnovsky, ctx->curve);
-    bigint_inverse(&s->s, k, ctx->curve->p);
-
-    printf_P(PSTR("x:   "));
-    bigint_print_hex(&q.affine.x);
-    putchar('\n');
+    bigint_inverse(&s->s, k, ctx->curve->n);
 
     bigint_mul_u(&t, &q.affine.x, ctx->priv);
-    ctx->curve->reduce_p(&t);
-
-    printf_P(PSTR("msg:   "));
-    bigint_print_hex(m);
-    putchar('\n');
-    printf_P(PSTR("k:     "));
-    bigint_print_hex(k);
-    putchar('\n');
-    printf_P(PSTR("k-inv: "));
-    bigint_print_hex(&s->s);
-    putchar('\n');
-    printf_P(PSTR("t (1): "));
-    bigint_print_hex(&t);
-    putchar('\n');
-
+    bigint_reduce(&t, ctx->curve->n);
     bigint_add_u(&t, &t, m);
-    ctx->curve->reduce_p(&t);
-    printf_P(PSTR("t (2): "));
-    bigint_print_hex(&t);
-    putchar('\n');
+    bigint_reduce(&t, ctx->curve->n);
     bigint_mul_u(&t, &t, &s->s);
-    ctx->curve->reduce_p(&t);
+    bigint_reduce(&t, ctx->curve->n);
     if(t.length_W == 0){
         printf_P(PSTR("DBG: XXX <%S %s %d>\n"), PSTR(__FILE__), __func__, __LINE__);
         return 2;

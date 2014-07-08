@@ -42,6 +42,7 @@ typedef union __attribute__((packed)){
 
 typedef struct {
     bigint_t *p;
+    bigint_t *n;
     bigint_t *b;
     int (*reduce_p)(bigint_t*);
 } ecc_curve_sp_t;

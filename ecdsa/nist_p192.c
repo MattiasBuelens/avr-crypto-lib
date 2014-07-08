@@ -46,6 +46,12 @@ uint8_t nist_curve_p192_p_w[] = {
     0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
 };
 
+uint8_t nist_curve_p192_n_w[] = {
+    0x31, 0x28, 0xd2, 0xb4, 0xb1, 0xc9, 0x6b, 0x14,
+    0x36, 0xf8, 0xde, 0x99, 0xff, 0xff, 0xff, 0xff,
+    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
+};
+
 uint8_t nist_curve_p192_b_w[] = {
     0xb1, 0xb9, 0x46, 0xc1, 0xec, 0xde, 0xb8, 0xfe,
     0x49, 0x30, 0x24, 0x72, 0xab, 0xe9, 0xa7, 0x0f,
@@ -82,6 +88,13 @@ uint8_t nist_curve_p192_z3_w[192 / BIGINT_WORD_SIZE] = {
 bigint_t nist_curve_p192_p = {
     .length_W = 192 / BIGINT_WORD_SIZE,
     .wordv = nist_curve_p192_p_w,
+    .info = 7
+};
+
+
+bigint_t nist_curve_p192_n = {
+    .length_W = 192 / BIGINT_WORD_SIZE,
+    .wordv = nist_curve_p192_n_w,
     .info = 7
 };
 
@@ -124,6 +137,7 @@ ecc_combi_point_t nist_curve_p192_basepoint = {
 ecc_curve_sp_t nist_curve_p192 = {
     .b = &nist_curve_p192_b,
     .p = &nist_curve_p192_p,
+    .n = &nist_curve_p192_n,
     .reduce_p = bigint_reduce_p192
 };
 
