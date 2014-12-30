@@ -18,6 +18,7 @@
 
 BLOCK_CIPHERS  :=
 STREAM_CIPHERS :=
+AEAD_CIPHERS   :=
 HASHES         :=
 MACS           :=
 PRNGS          :=
@@ -39,8 +40,8 @@ include $(sort $(wildcard mkfiles/*.mk))
 default: info
 
 #-------------------------------------------------------------------------------
-ALGORITHMS = $(BLOCK_CIPHERS) $(STREAM_CIPHERS) $(HASHES) $(PRNGS) $(MACS) \
-			 $(ENCODINGS) $(SIGNATURE) $(PK_CIPHERS) $(AUX)
+ALGORITHMS = $(BLOCK_CIPHERS) $(STREAM_CIPHERS) $(AEAD_CIPHERS) $(HASHES) \
+              $(PRNGS) $(MACS) $(ENCODINGS) $(SIGNATURE) $(PK_CIPHERS) $(AUX)
 ALGORITHMS_OBJ = $(patsubst %,%_OBJ, $(ALGORITHMS))
 ALGORITHMS_TESTBIN = $(patsubst %,%_TESTBIN, $(ALGORITHMS))
 
@@ -68,12 +69,21 @@ define GenericTarget_Template
 $(1): $(2)
 endef
 
+ifeq ($(V),)
 define TargetSource_Template
 $(1): $(2)
 	@mkdir -p  $(dir $(1)) $(DEP_DIR)
 	@echo "[cc]: $(1) <-- $(2)"
 	@$(CC) $(CFLAGS_A) $(addprefix -I./,$(3)) $(addprefix -D, $(4)) -c -o $(1) $(2)
 endef
+else
+define TargetSource_Template
+$(1): $(2)
+	@mkdir -p  $(dir $(1)) $(DEP_DIR)
+	@echo "[cc]: $(1) <-- $(2)"
+	$(CC) $(CFLAGS_A) $(addprefix -I./,$(3)) $(addprefix -D, $(4)) -c -o $(1) $(2)
+endef
+endif
 
 
 
@@ -361,6 +371,8 @@ info:
 	@echo "    $(BLOCK_CIPHERS)"
 	@echo "  stream ciphers:"
 	@echo "    $(STREAM_CIPHERS)"
+	@echo "  AEAD ciphers:"
+	@echo "    $(AEAD_CIPHERS)"
 	@echo "  hash functions:"
 	@echo "    $(HASHES)"
 	@echo "  MAC functions:"
