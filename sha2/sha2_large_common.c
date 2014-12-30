@@ -53,8 +53,8 @@ uint64_t change_endian64(uint64_t x){
 	uint8_t i=8;
 	do{
 		r <<= 8;
-		r |= 0xff&x;
-		x >>=8;
+		r |= (uint8_t)x;
+		x >>= 8;
 	}while(--i);
 	return r;
 }
@@ -63,12 +63,12 @@ uint64_t change_endian64(uint64_t x){
 
 static const
 uint64_t rotr64(uint64_t x, uint8_t n){
-	return (x>>n)|(x<<(64-n));
+	return (x >> n) | (x << (64 - n));
 }
 
 static const
 uint64_t rotl64(uint64_t x, uint8_t n){
-	return (x<<n)|(x>>(64-n));
+	return (x << n) | (x >> (64 - n));
 }
 
 static const
@@ -86,8 +86,8 @@ uint64_t pgm_read_uint64_t_P(const uint64_t * p){
 #define MAJ(x,y,z) (((x)&(y))^((x)&(z))^((y)&(z)))
 #define SIGMA_0(x) (rotr64((x), 28) ^ rotl64((x), 30) ^ rotl64((x), 25))
 #define SIGMA_1(x) (rotr64((x), 14) ^ rotr64((x), 18) ^ rotl64((x), 23))
-#define SIGMA_a(x) (rotr64((x),  1) ^ rotr64((x),  8) ^ ((x)>>7))
-#define SIGMA_b(x) (rotr64((x), 19) ^ rotl64((x),  3) ^ ((x)>>6))
+#define SIGMA_a(x) (rotr64((x),  1) ^ rotr64((x),  8) ^ ((x) >> 7))
+#define SIGMA_b(x) (rotr64((x), 19) ^ rotl64((x),  3) ^ ((x) >> 6))
 
 void sha2_large_common_nextBlock(sha2_large_common_ctx_t *ctx, const void *block){
 	uint64_t w[16], wx;
@@ -95,23 +95,23 @@ void sha2_large_common_nextBlock(sha2_large_common_ctx_t *ctx, const void *block
 	uint64_t t1, t2;
 	const uint64_t *k=sha2_large_common_const;
 	uint8_t i;
-	i=16;
-	do{
-		w[16-i] = change_endian64(*((const uint64_t*)block));
+	i = 16;
+	do {
+		w[16 - i] = change_endian64(*((const uint64_t*)block));
 		block = (uint8_t*)block + 8;
-	}while(--i);
-	memcpy(a, ctx->h, 8*8);
-	for(i=0; i<80; ++i){
-		if(i<16){
-			wx=w[i];
+	} while(--i);
+	memcpy(a, ctx->h, 8 * 8);
+	for(i = 0; i < 80; ++i){
+		if(i < 16){
+			wx = w[i];
 		}else{
 			wx = SIGMA_b(w[14]) + w[9] + SIGMA_a(w[1]) + w[0];
-			memmove(&(w[0]), &(w[1]), 15*8);
+			memmove(&(w[0]), &(w[1]), 15 * 8);
 			w[15] = wx;
 		}
 		t1 = a[7] + SIGMA_1(a[4]) + CH(a[4], a[5], a[6]) + pgm_read_uint64_t_P(k++) + wx;
 		t2 = SIGMA_0(a[0]) + MAJ(a[0], a[1], a[2]);
-		memmove(&(a[1]), &(a[0]), 7*8);
+		memmove(&(a[1]), &(a[0]), 7 * 8);
 		a[0] = t1 + t2;
 		a[4] += t1;
 	}

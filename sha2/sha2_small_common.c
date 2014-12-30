@@ -22,6 +22,8 @@
 #include <avr/pgmspace.h>
 #include "sha2_small_common.h"
 
+#include <stdio.h>
+#include <inttypes.h>
 
 #define LITTLE_ENDIAN
 
@@ -29,34 +31,36 @@
  * rotate x right by n positions
  */
 static
-uint32_t rotr32( uint32_t x, uint8_t n){
-	return ((x>>n) | (x<<(32-n)));
+uint32_t rotr32(uint32_t x, uint8_t n){
+	return ((x >> n) | (x << (32 - n)));
 }
 
 static
-uint32_t rotl32( uint32_t x, uint8_t n){
-	return ((x<<n) | (x>>(32-n)));
+uint32_t rotl32(uint32_t x, uint8_t n){
+	return ((x << n) | (x >> (32 - n)));
 }
-
 
 /*************************************************************************/
 
 // #define CHANGE_ENDIAN32(x) (((x)<<24) | ((x)>>24) | (((x)& 0x0000ff00)<<8) | (((x)& 0x00ff0000)>>8))
 static
 uint32_t change_endian32(uint32_t x){
-	return (((x)<<24) | ((x)>>24) | (((x)& 0x0000ff00)<<8) | (((x)& 0x00ff0000)>>8));
+	return (((x) << 24) |
+	        ((x) >> 24) |
+	        (((x) & 0x0000ff00) << 8) |
+	        (((x) & 0x00ff0000) >> 8));
 }
 
 
 /* sha256 functions as macros for speed and size, cause they are called only once */
 
-#define CH(x,y,z)  (((x)&(y)) ^ ((~(x))&(z)))
-#define MAJ(x,y,z) (((x)&(y)) ^ ((x)&(z)) ^ ((y)&(z)))
+#define CH(x,y,z)  (((x) & (y)) ^ ((~(x)) & (z)))
+#define MAJ(x,y,z) (((x) & (y)) ^ ((x) & (z)) ^ ((y) & (z)))
 
-#define SIGMA_0(x) (rotr32((x), 2) ^ rotr32((x),13) ^ rotl32((x),10))
-#define SIGMA_1(x) (rotr32((x), 6) ^ rotr32((x),11) ^ rotl32((x),7))
-#define SIGMA_a(x) (rotr32((x), 7) ^ rotl32((x),14) ^ ((x)>>3))
-#define SIGMA_b(x) (rotl32((x),15) ^ rotl32((x),13) ^ ((x)>>10))
+#define SIGMA_0(x) (rotr32((x),  2) ^ rotr32((x), 13) ^ rotl32((x), 10))
+#define SIGMA_1(x) (rotr32((x),  6) ^ rotr32((x), 11) ^ rotl32((x),  7))
+#define SIGMA_a(x) (rotr32((x),  7) ^ rotl32((x), 14) ^ ((x) >> 3))
+#define SIGMA_b(x) (rotl32((x), 15) ^ rotl32((x), 13) ^ ((x) >> 10))
 
 const
 uint32_t k[] PROGMEM = {
@@ -88,32 +92,35 @@ void sha2_small_common_nextBlock (sha2_small_common_ctx_t *state, const void *bl
 #elif defined BIG_ENDIAN
 		memcpy((void*)w, block, 64);
 #endif
-/*
-	for (i=16; i<64; ++i){
-		w[i] = SIGMA_b(w[i-2]) + w[i-7] + SIGMA_a(w[i-15]) + w[i-16];
-	}
-*/
 /* init working variables */
-	memcpy((void*)a,(void*)(state->h), 8*4);
+	memcpy(&a[0], &state->h[0], sizeof(a));
 
 /* do the, fun stuff, */
-	for (i=0; i<64; ++i){
-		if(i<16){
+	for (i = 0; i < 64; ++i){
+		if(i < 16){
 			wx = w[i];
 		}else{
-			wx = SIGMA_b(w[14]) + w[9] + SIGMA_a(w[1]) + w[0];
-			memmove(&(w[0]), &(w[1]), 15*4);
-			w[15] = wx;
+            wx =    SIGMA_b(w[14])
+                  + w[9]
+                  + SIGMA_a(w[1])
+                  + w[0];
+            memmove(&w[0], &w[1], sizeof(w) - sizeof(w[0]));
+            w[15] = wx;
 		}
-		t1 = a[7] + SIGMA_1(a[4]) + CH(a[4],a[5],a[6]) + pgm_read_dword(&k[i]) + wx;
-		t2 = SIGMA_0(a[0]) + MAJ(a[0],a[1],a[2]);
-		memmove(&(a[1]), &(a[0]), 7*4); 	/* a[7]=a[6]; a[6]=a[5]; a[5]=a[4]; a[4]=a[3]; a[3]=a[2]; a[2]=a[1]; a[1]=a[0]; */
+		t1 =   a[7]
+		     + SIGMA_1(a[4])
+		     + CH(a[4], a[5], a[6])
+		     + pgm_read_dword(&k[i]) + wx;
+		t2 =   SIGMA_0(a[0])
+		     + MAJ(a[0], a[1], a[2]);
+		t2 += t1;
+		memmove(&a[1], &a[0], sizeof(a) - sizeof(a[0]));
 		a[4] += t1;
-		a[0] = t1 + t2;
+		a[0] = t2;
 	}
 
 /* update, the, state, */
-	for (i=0; i<8; ++i){
+	for (i = 0; i < 8; ++i){
 		state->h[i] += a[i];
 	}
 	state->length += 1;
@@ -123,19 +130,19 @@ void sha2_small_common_nextBlock (sha2_small_common_ctx_t *state, const void *bl
 void sha2_small_common_lastBlock(sha2_small_common_ctx_t *state, const void *block, uint16_t length_b){
 	uint8_t lb[512/8]; /* local block */
 	uint64_t len;
-	while(length_b>=512){
+	while(length_b >= 512){
 		sha2_small_common_nextBlock(state, block);
 		length_b -= 512;
-		block = (uint8_t*)block+64;
+		block = (uint8_t*)block + 64;
 	}
-	len = state->length*512 + length_b;
+	len = state->length * 512 + length_b;
 	memset(lb, 0, 64);
-	memcpy(lb, block, (length_b+7)/8);
+	memcpy(lb, block, (length_b + 7) / 8);
 
 	/* set the final one bit */
-	lb[length_b/8] |= 0x80>>(length_b & 0x7);
+	lb[length_b / 8] |= 0x80 >> (length_b & 0x7);
 	/* pad with zeros */
-	if (length_b>=512-64){ /* not enouth space for 64bit length value */
+	if (length_b >= 512 - 64){ /* not enough space for 64bit length value */
 		sha2_small_common_nextBlock(state, lb);
 		memset(lb, 0, 64);
 	}
@@ -143,10 +150,10 @@ void sha2_small_common_lastBlock(sha2_small_common_ctx_t *state, const void *blo
 #if defined LITTLE_ENDIAN
 	 	/* this is now rolled up */
 	uint8_t i;
-	i=7;
-	do{
-		lb[63-i] = ((uint8_t*)&len)[i];
-	}while(i--);
+	i = 7;
+	do {
+		lb[63 - i] = ((uint8_t*)&len)[i];
+	} while(i--);
 #elif defined BIG_ENDIAN
 	*((uint64_t)&(lb[56])) = len;
 #endif

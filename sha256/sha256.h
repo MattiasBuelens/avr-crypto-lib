@@ -49,9 +49,9 @@
  */
 
 #define SHA256_HASH_BITS  256
-#define SHA256_HASH_BYTES (SHA256_HASH_BITS/8)
+#define SHA256_HASH_BYTES (SHA256_HASH_BITS / 8)
 #define SHA256_BLOCK_BITS 512
-#define SHA256_BLOCK_BYTES (SHA256_BLOCK_BITS/8)
+#define SHA256_BLOCK_BYTES (SHA256_BLOCK_BITS / 8)
 
 /** \typedef sha256_ctx_t
  * \brief SHA-256 context type
@@ -60,7 +60,7 @@
  */
 typedef struct {
 	uint32_t h[8];
-	uint64_t length;
+	uint32_t length;
 } sha256_ctx_t;
 
 /** \typedef sha256_hash_t
