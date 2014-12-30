@@ -28,7 +28,7 @@
 #include "config.h"
 #include "cli.h"
 #include "dump.h"
-#include "uart_i.h"
+#include "uart.h"
 #include "debug.h"
 #include <avr/pgmspace.h>
 
