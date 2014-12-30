@@ -27,7 +27,17 @@
 
 #include "uart_defs.h"
 
+
+#ifndef UART_NI
+#define UART_NI 0
+#endif
+
+#if UART_NI == 0
 #define UART0_I 1
+#else
+#define UART0_NI 1
+#endif
+
 #ifndef UART0_BAUD_RATE
 #define UART0_BAUD_RATE  115200
 #endif
@@ -36,7 +46,7 @@
 #define UART0_DATABITS   UART_DATABITS_8
 #define UART0_RXBUFFER_SIZE 255
 #define UART0_TXBUFFER_SIZE 120
-#define UART0_SWFLOWCTRL     1
+#define UART0_SWFLOWCTRL     0
 #define UART0_THRESH_LOW     0
 #define UART0_THRESH_HIGH   32
 

@@ -24,7 +24,7 @@
 #include "config.h"
 
 #if DEBUG_METHOD == uart
- #include "uart_i.h"
+ #include "uart.h"
 #else
   #error "Your DEBUG methode is not suported!"
 #endif
