@@ -254,7 +254,7 @@ void gcm128_decrypt_block(
 {
     uint8_t tmp[BLOCK_BYTES];
     ghash128_block(&ctx->ghash_ctx, src);
-    inc32(&ctx->ctr[11]);
+    inc32(&ctx->ctr[BLOCK_BYTES - COUNT_BYTES]);
     memcpy(tmp, ctx->ctr, BLOCK_BYTES);
     bcal_cipher_enc(tmp, &ctx->cipher_ctx);
     memxor(tmp, src, BLOCK_BYTES);
@@ -286,7 +286,7 @@ void gcm128_decrypt_final_block(
             tmp[length_b / 8] &= 0xff << (8 - (length_b & 7));
         }
         ghash128_block(&ctx->ghash_ctx, tmp);
-        inc32(&ctx->ctr[11]);
+        inc32(&ctx->ctr[BLOCK_BYTES - COUNT_BYTES]);
         memcpy(tmp, ctx->ctr, BLOCK_BYTES);
         bcal_cipher_enc(tmp, &ctx->cipher_ctx);
         memxor(tmp, src, BLOCK_BYTES);

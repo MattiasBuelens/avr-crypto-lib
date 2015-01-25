@@ -182,8 +182,9 @@ int8_t gcm128_simple_progmem(
         void *tag,
         uint8_t tag_length_b)
 {
+    uint8_t dec_tag[16];
     int8_t r;
-    gcm128_ctx_t ctx;
+    gcm128_ctx_t ctx, dec_ctx;
     const bcdesc_t *cipher;
     switch (key_length_b) {
     case 128: cipher = &aes128_desc; break;
@@ -201,6 +202,11 @@ int8_t gcm128_simple_progmem(
             uart0_flush();
             return -1;
         }
+        if ((r = gcm128_init(&dec_ctx, cipher, key, key_length_b, iv, iv_length_b))) {
+            printf_P(PSTR("DBG: (Oooops) Error: %"PRId8"\n"), r);
+            uart0_flush();
+            return -1;
+        }
 
     }
     uint8_t tmp[GCM128_BLOCK_BYTES];
@@ -209,24 +215,41 @@ int8_t gcm128_simple_progmem(
         ad_p = &((uint8_t*)ad_p)[GCM128_BLOCK_BYTES];
         ad_length_b -= GCM128_BLOCK_BITS;
         gcm128_add_ad_block(&ctx, tmp);
+        gcm128_add_ad_block(&dec_ctx, tmp);
     }
     memcpy_P(tmp, ad_p, (ad_length_b + 7) / 8);
     gcm128_add_ad_final_block(&ctx, tmp, ad_length_b);
+    gcm128_add_ad_final_block(&dec_ctx, tmp, ad_length_b);
 
     while (src_length_b >= GCM128_BLOCK_BITS) {
         memcpy_P(tmp, src_p, GCM128_BLOCK_BYTES);
-        src_p = &((uint8_t*)src_p)[GCM128_BLOCK_BYTES];
         src_length_b -= GCM128_BLOCK_BITS;
         gcm128_encrypt_block(&ctx, tmp, tmp);
+        gcm128_decrypt_block(&dec_ctx, tmp, tmp);
+        if (memcmp_P(tmp, src_p, GCM128_BLOCK_BYTES)) {
+            printf("DBG: Error: decryption error");
+            DUMP(tmp);
+        }
 //        DUMP(tmp);
+        src_p = &((uint8_t*)src_p)[GCM128_BLOCK_BYTES];
     }
     memcpy_P(tmp, src_p, (src_length_b + 7) / 8);
     gcm128_encrypt_final_block(&ctx, tmp, tmp, src_length_b);
+    gcm128_decrypt_final_block(&dec_ctx, tmp, tmp, src_length_b);
     if (src_length_b > 0) {
 //        DUMP_LEN(tmp, (src_length_b + 7) / 8);
+        if (memcmp_P(tmp, src_p, (src_length_b + 7) / 8)) {
+            printf("DBG: Error: decryption error");
+            DUMP_LEN(tmp, (src_length_b + 7) / 8);
+        }
     }
-
+    gcm128_finalize(&dec_ctx, dec_tag, tag_length_b);
     gcm128_finalize(&ctx, tag, tag_length_b);
+    if (memcmp(tag, dec_tag, (tag_length_b + 7) / 8)) {
+        printf("DBG: Error: tag error");
+        DUMP_LEN(tag, (tag_length_b + 7) / 8);
+        DUMP_LEN(dec_tag, (tag_length_b + 7) / 8);
+    }
     return 0;
 }
 
