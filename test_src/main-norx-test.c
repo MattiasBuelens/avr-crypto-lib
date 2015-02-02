@@ -56,6 +56,7 @@ char *algo_name = "norx";
 #define DUMP(x) do { printf("%s", "\n\n" #x ":"); \
                     cli_hexdump_block((x), sizeof(x), 4, 16); } while (0)
 
+#if 0
 void g32(uint32_t *(a[4]));
 void f32(norx32_ctx_t *ctx);
 
@@ -96,6 +97,7 @@ void testrun_f32(void)
     ctx.r = 8;
     f32(&ctx);
 }
+#endif
 
 void testrun_norx32(void)
 {
@@ -161,8 +163,8 @@ const char echo_str[]        PROGMEM = "echo";
 const cmdlist_entry_t cmdlist[] PROGMEM = {
 //    { nessie_str,      NULL, NULL },
     { test_str,        NULL, testrun_norx32},
-    { ftest_str,       NULL, testrun_f32},
-    { gtest_str,       NULL, testrun_g32},
+//    { ftest_str,       NULL, testrun_f32},
+//    { gtest_str,       NULL, testrun_g32},
 //    { performance_str, NULL, testrun_performance_arcfour},
     { echo_str,    (void*)1, (void_fpt)echo_ctrl},
     { NULL,            NULL, NULL}

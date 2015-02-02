@@ -37,11 +37,14 @@ int8_t norx32_init (
     norx32_ctx_t *ctx,
     const void* nonce,
     const void* key,
-    uint16_t tag_size_b,
     uint8_t rounds,
-    uint8_t parallel );
+    uint8_t parallel,
+    uint16_t tag_size_b );
+
 void norx32_finalize(norx32_ctx_t *ctx, void *tag);
+
 void norx32_add_header_block(norx32_ctx_t *ctx, const void *block);
+
 void norx32_add_header_last_block(
     norx32_ctx_t *ctx,
     const void *block,
@@ -54,6 +57,7 @@ void norx32_encrypt_last_block(
     void *dest,
     const void *src,
     uint16_t length_b );
+
 void norx32_add_trailer_block(norx32_ctx_t *ctx, const void *block);
 
 void norx32_add_trailer_last_block(

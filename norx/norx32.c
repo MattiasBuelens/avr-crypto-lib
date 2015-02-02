@@ -44,22 +44,6 @@
 #define U8 0x8c91d88cl
 #define U9 0x11eafb59l
 
-#if 0
-
-
-#define U0 0x886a3f24l
-#define U1 0xd308a385l
-#define U2 0x2e8a1913l
-#define U3 0x44737003l
-#define U4 0x7a534f25l
-#define U5 0x481d5338l
-#define U6 0x836e9c83l
-#define U7 0xe53a7af9l
-#define U8 0xxxxxxxxxx
-#define U9 0x59fbea11l
-
-#endif
-
 #define WORD_SIZE 32
 
 #define RATE_WORDS 10
@@ -79,9 +63,21 @@
 #define TAG_MERGING   0x20
 
 
-#define SET_TAG(ctx,t) do { ((uint8_t*)&(ctx)->s[15])[0] ^= (t); } while (0)
+#define SET_TAG(ctx, t) do { \
+        ((uint8_t*)&(ctx)->s[15])[0] ^= (t); \
+    } while (0)
 
+#define TOGGLE_BIT(buf, bit_addr) do { \
+        ((uint8_t*)(buf))[(bit_addr) / 8] ^= (1 << ((bit_addr) & 7)); \
+    } while (0)
 
+#define TRUNCATE_BUFFER(buf, bits) do { \
+        if (bits & 7) { \
+            ((uint8_t*)(buf))[(bits) / 8] &= 0xff >> (7 - ((bits) & 7)); \
+        } \
+    } while (0)
+
+#if 0
 void norx32_dump(const norx32_ctx_t *ctx)
 {
     printf("\n--- DUMP STATE ---");
@@ -91,73 +87,62 @@ void norx32_dump(const norx32_ctx_t *ctx)
     printf("\n\t%08lX %08lX %08lX %08lX", ctx->s[12], ctx->s[13], ctx->s[14], ctx->s[15]);
     printf("\n--- END ---\n");
 }
+#endif
 
-static void phi(uint32_t *(a[2]))
+static void phi(uint32_t *a, uint32_t *b)
 {
-    uint32_t x;
-    x = (*(a[0]) & *(a[1])) << 1;
-    *(a[0]) ^= *(a[1]) ^ x;
+    *a = (*a ^ *b) ^ ((*a & *b) << 1);
 }
 
-static void xrot(uint32_t *a, const uint32_t *b, uint8_t r)
+static void xrot(uint32_t *a, uint32_t *b, uint8_t r)
 {
     uint32_t x;
     x = *a ^ *b;
     *a = (x << (32 - r)) | (x >> r);
 }
 
-#define A (a[0])
-#define B (a[1])
-#define C (a[2])
-#define D (a[3])
+#define A (v[3])
+#define B (v[2])
+#define C (v[1])
+#define D (v[0])
 
-void g32(uint32_t *(a[4]))
-{
-    phi(&A);
-    xrot(D, A, R0);
-    phi(&C);
-    xrot(B, C, R1);
-    phi(&A);
-    xrot(D, A, R2);
-    phi(&C);
-    xrot(B, C, R3);
-}
-
-static uint8_t g2_table[4][4] = {
+static const uint8_t g2_table[8][4] PROGMEM = {
+        {0, 4,  8, 12},
+        {1, 5,  9, 13},
+        {2, 6, 10, 14},
+        {3, 7, 11, 15},
         {0, 5, 10, 15},
         {1, 6, 11, 12},
         {2, 7,  8, 13},
-        {3, 4,  9, 14},
+        {3, 4,  9, 14}
 };
 
-void f32(norx32_ctx_t *ctx)
+static void rho(uint32_t *(v[4]), uint8_t ra, uint8_t rb)
 {
-    uint32_t *(a[4]);
-    uint8_t i, rounds;
+    phi(A, B);
+    xrot(D, A, ra);
+    phi(C, D);
+    xrot(B, C, rb);
+}
+
+static void f32(norx32_ctx_t *ctx)
+{
+    uint8_t i, j, rounds;
+    uint32_t *(v[4]);
+    const uint8_t *p;
     rounds = ctx->r;
     do {
-        a[0] = &ctx->s[0];
-        a[1] = &ctx->s[4];
-        a[2] = &ctx->s[8];
-        a[3] = &ctx->s[12];
-        g32(a);
-        i = 3;
+        p = &g2_table[0][0];
+        i = 8;
         do {
-            a[0]++;
-            a[1]++;
-            a[2]++;
-            a[3]++;
-            g32(a);
+            j = 4;
+            do {
+                --j;
+                v[j] = &ctx->s[pgm_read_byte(p++)];
+            } while(j);
+            rho(v, R0, R1);
+            rho(v, R2, R3);
         } while (--i);
-        i = 4;
-        do {
-            --i;
-            a[0] = &ctx->s[g2_table[i][0]];
-            a[1] = &ctx->s[g2_table[i][1]];
-            a[2] = &ctx->s[g2_table[i][2]];
-            a[3] = &ctx->s[g2_table[i][3]];
-            g32(a);
-        } while (i);
     } while (--rounds);
 }
 
@@ -200,17 +185,24 @@ static void norx32_process_last_block(
     if (out_block) {
         memcpy(out_block, ctx->s, (length_b + 7) / 8);
         out_block = (uint8_t*)out_block + (length_b + 7) / 8;
-        if ((length_b & 7) != 0) {
-            ((uint8_t*)out_block)[length_b / 8 + 1] &= 0xff << (7 - (length_b & 7));
-        }
+#ifndef NO_BIT_MODE
+        TRUNCATE_BUFFER(out_block, length_b);
+#endif
     }
-    ((uint8_t*)ctx->s)[length_b / 8] ^= 1 << (length_b & 7);
+#ifndef NO_BIT_MODE
+    TOGGLE_BIT(ctx->s, length_b);
+#else
+    ((uint8_t*)ctx->s)[length_b / 8] ^= 1;
+#endif
     if (length_b == RATE_BITS - 1) {
         SET_TAG(ctx, tag);
         f32(ctx);
     }
+#ifndef NO_BIT_MODE
+    TOGGLE_BIT(ctx->s, RATE_BITS - 1);
+#else
     ((uint8_t*)ctx->s)[RATE_BYTES - 1] ^= 0x80;
-
+#endif
 }
 
 /******************************************************************************/
@@ -219,9 +211,9 @@ int8_t norx32_init (
     norx32_ctx_t *ctx,
     const void* nonce,
     const void* key,
-    uint16_t tag_size_b,
     uint8_t rounds,
-    uint8_t parallel )
+    uint8_t parallel,
+    uint16_t tag_size_b )
 {
     uint32_t v;
     if (ctx == NULL || nonce == NULL || key == NULL) {
@@ -257,6 +249,9 @@ void norx32_finalize(norx32_ctx_t *ctx, void *tag)
     f32(ctx);
     if (tag) {
         memcpy(tag, ctx->s, (ctx->a + 7) / 8);
+#ifndef NO_BIT_MODE
+        TRUNCATE_BUFFER(tag, ctx->a);
+#endif
     }
 }
 
@@ -318,7 +313,7 @@ void norx32_default_simple (
     size_t trailer_length_B )
 {
     norx32_ctx_t ctx;
-    norx32_init(&ctx, nonce, key, 4 * WORD_SIZE, 4, 1);
+    norx32_init(&ctx, nonce, key, 4, 1, 4 * WORD_SIZE);
     if (header && header_length_B) {
         norx32_add_header_last_block(&ctx, header, header_length_B * 8);
     }
