@@ -34,7 +34,7 @@
 #include "hashfunction_descriptor.h"
 #include "stack_measuring.h"
 #include "performance_test.h"
-#include "uart_i.h"
+#include "uart.h"
 
 #define PATTERN_A 0xAA
 #define PATTERN_B 0x55

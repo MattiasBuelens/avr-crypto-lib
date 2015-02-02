@@ -1,4 +1,4 @@
-# Makefile for noekeon
+# Makefile for norx
 ALGO_NAME := NORX_C
 
 # comment out the following line for removement of noekeon from the build process

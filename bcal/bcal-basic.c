@@ -39,13 +39,15 @@ uint8_t bcal_cipher_init(const bcdesc_t *cipher_descriptor,
     init_fpt.initvoid =
             (void_fpt) (pgm_read_word(&(cipher_descriptor->init.initvoid)));
     if (init_fpt.initvoid == NULL) {
-        if (!(ctx->ctx = malloc((keysize_b + 7) / 8)))
+        if (!(ctx->ctx = malloc((keysize_b + 7) / 8))) {
             return 2;
+        }
         memcpy(ctx->ctx, key, (keysize_b + 7) / 8);
         return 0;
     }
-    if (!(ctx->ctx = malloc(pgm_read_word(&(cipher_descriptor->ctxsize_B)))))
+    if (!(ctx->ctx = malloc(pgm_read_word(&(cipher_descriptor->ctxsize_B))))) {
         return 3;
+    }
     if ((flags & BC_INIT_TYPE) == BC_INIT_TYPE_1) {
         init_fpt.init1((void*) key, (ctx->ctx));
     } else {

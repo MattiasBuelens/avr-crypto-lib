@@ -32,7 +32,7 @@
 #include "performance_test.h"
 #include "stack_measuring.h"
 #include "cli.h"
-#include "uart_i.h"
+#include "uart.h"
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>

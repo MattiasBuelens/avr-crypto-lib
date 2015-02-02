@@ -32,29 +32,32 @@
 uint8_t is_valid_keysize_P(PGM_VOID_P ks_desc, uint16_t keysize){
 	uint8_t type;
 	type = pgm_read_byte(ks_desc++);
-	if(type==KS_TYPE_TERMINATOR)
+	if (type == KS_TYPE_TERMINATOR) {
 		return 0;
-	if(type==KS_TYPE_LIST){
+	}
+	if (type == KS_TYPE_LIST) {
 		uint8_t items;
 		uint16_t item;
 		items = pgm_read_byte(ks_desc++);
-		while(items--){
+		while (items--) {
 			item = pgm_read_word(ks_desc);
 			ks_desc = (uint8_t*)ks_desc + 2;
-			if(item==keysize)
+			if (item == keysize) {
 				return 1;
+			}
 		}
 		ks_desc = (uint8_t*)ks_desc - 2;
 	}
-	if(type==KS_TYPE_RANGE){
+	if (type == KS_TYPE_RANGE) {
 		uint16_t max, min;
 		min = pgm_read_word(ks_desc);
 		ks_desc = (uint8_t*)ks_desc + 2;
 		max = pgm_read_word(ks_desc);
-		if(min<=keysize && keysize<=max)
+		if (min <= keysize && keysize <= max) {
 			return 1;
+		}
 	}
-	if(type==KS_TYPE_ARG_RANGE){
+	if (type == KS_TYPE_ARG_RANGE) {
 		uint16_t max, min, dist, offset;
 		min = pgm_read_word(ks_desc);
 		ks_desc = (uint8_t*)ks_desc + 2;
@@ -63,14 +66,15 @@ uint8_t is_valid_keysize_P(PGM_VOID_P ks_desc, uint16_t keysize){
 		dist = pgm_read_word(ks_desc);
 		ks_desc = (uint8_t*)ks_desc + 2;
 		offset = pgm_read_word(ks_desc);
-		if(min<=keysize && keysize<=max && (keysize%dist==offset))
+		if (min <= keysize && keysize <= max && (keysize % dist == offset)) {
 			return 1;
+		}
 	}
-	if(type>KS_TYPE_ARG_RANGE){
+	if (type > KS_TYPE_ARG_RANGE) {
 		/* bad error, you may insert a big warning message here */
 		return 0;
 	}
-	return is_valid_keysize_P((uint8_t*)ks_desc+1, keysize); /* search the next record */
+	return is_valid_keysize_P((uint8_t*)ks_desc + 1, keysize); /* search the next record */
 }
 
 uint16_t get_keysize(PGM_VOID_P ks_desc){
