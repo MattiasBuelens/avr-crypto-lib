@@ -27,9 +27,9 @@
 #include "main-test-common.h"
 
 #include <gcm128.h>
-#include <bcal_aes128.h>
-#include <bcal_aes192.h>
-#include <bcal_aes256.h>
+#include <bcal_aes128_enconly.h>
+#include <bcal_aes192_enconly.h>
+#include <bcal_aes256_enconly.h>
 #include "performance_test.h"
 
 char *algo_name = "GCM-AES128";
