@@ -1,7 +1,7 @@
 /**
  * 
  * author: Daniel Otte
- * email:  daniel.otte@rub.de
+ * email:  bg@nerilex.org
  * license: GPLv3
  * 
  * */

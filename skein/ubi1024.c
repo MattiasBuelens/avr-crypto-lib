@@ -1,7 +1,7 @@
 /* ubi1024.c */
 /*
     This file is part of the ARM-Crypto-Lib.
-    Copyright (C) 2006-2010  Daniel Otte (daniel.otte@rub.de)
+    Copyright (C) 2006-2015 Daniel Otte (bg@nerilex.org)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 */
 /*
  * \author  Daniel Otte
- * \email   daniel.otte@rub.de
+ * \email   bg@nerilex.org
  * \date    2009-03-12
  * \license GPLv3 or later
  * 

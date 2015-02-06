@@ -1,7 +1,7 @@
 /* hfal_sha224.h */
 /*
     This file is part of the ARM-Crypto-Lib.
-    Copyright (C) 2011  Daniel Otte (daniel.otte@rub.de)
+    Copyright (C) 2006-2015 Daniel Otte (bg@nerilex.org)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 */
 /**
  * \file     hfal_sha224.h
- * \email    daniel.otte@rub.de
+ * \email    bg@nerilex.org
  * \author   Daniel Otte 
  * \date     2011-10-11
  * \license  GPLv3 or later

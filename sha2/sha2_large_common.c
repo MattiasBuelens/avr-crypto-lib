@@ -1,7 +1,7 @@
 /* sha2_large_common.c */
 /*
     This file is part of the ARM-Crypto-Lib.
-    Copyright (C) 2006-2011 Daniel Otte (daniel.otte@rub.de)
+    Copyright (C) 2006-2015 Daniel Otte (bg@nerilex.org)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by

@@ -1,7 +1,7 @@
 /* A5_1.c */
 /*
  This file is part of the AVR-Crypto-Lib.
- Copyright (C) 2008  Daniel Otte (daniel.otte@rub.de)
+ Copyright (C) 2006-2015 Daniel Otte (bg@nerilex.org)
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 /* 
  * File:        A5_1.c
  * Author:      Daniel Otte
- * email:       daniel.otte@rub.de
+ * email:       bg@nerilex.org
  * Date:        2006-06-24
  * License:     GPLv3 or later
  * Description: Implementation of the A5/1 stream cipher algorithm, as used in GSM.

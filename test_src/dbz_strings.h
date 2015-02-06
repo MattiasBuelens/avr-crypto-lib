@@ -3,7 +3,7 @@
  *   This file is part of AnonAccess, an access system which can be used
  *    to open door or doing other things with an anonymity featured
  *    account managment.
- *   Copyright (C) 2006, 2007, 2008, 2009  Daniel Otte (daniel.otte@rub.de)
+ *   Copyright (C) 2006-2015 Daniel Otte (bg@nerilex.org)
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 
 /** \file dbz_strings.h
  * \author  Daniel Otte
- * \email   daniel.otte@rub.de
+ * \email   bg@nerilex.org
  * \license GPLv3 or later
  * \brief functions for handling of double-zero-terminated strings
  * 

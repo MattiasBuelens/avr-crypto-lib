@@ -3,7 +3,7 @@
 /**
  * \file    sha3-api.h
  * \author  Daniel Otte
- * \email   daniel.otte@rub.de
+ * \email   bg@nerilex.org
  * \date    2009-01-06
  * \license GPLv3 or later
  * 
