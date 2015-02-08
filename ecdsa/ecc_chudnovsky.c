@@ -27,7 +27,7 @@
 #if 1
 #include <stdio.h>
 #include "bigint_io.h"
-#include "uart_i.h"
+#include "uart.h"
 #include <avr/pgmspace.h>
 #endif
 

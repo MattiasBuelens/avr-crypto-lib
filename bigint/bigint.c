@@ -61,7 +61,7 @@
 
 #if DEBUG
 #include "cli.h"
-#include "uart_i.h"
+#include "uart.h"
 #include "bigint_io.h"
 #endif
 
